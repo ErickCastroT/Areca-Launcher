@@ -1,0 +1,24 @@
+# Gradle y compilación
+.gradle/
+build/
+.kotlin/
+*.apk
+*.aab
+
+# Configuración local (rutas del SDK, claves de firma)
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# IDE y sistema
+.idea/
+*.iml
+.DS_Store
+*.log
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Herramientas de asistencia locales
+.claude/

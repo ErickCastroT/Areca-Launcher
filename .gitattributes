@@ -1,0 +1,7 @@
+# Texto con saltos de línea normalizados; binarios sin tocar.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.png binary
+*.ttf binary
+*.webp binary
