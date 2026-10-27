@@ -8,6 +8,16 @@ that scrolls vertically with a magnifying effect toward the center, or in straig
 > Status: in development. Tested on a Samsung phone running Android 13; it still needs testing on more devices and
 > Android versions.
 
+## Screenshots
+
+| Home screen | App list | Settings |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/home.jpg" width="220" alt="Home screen"> | <img src="docs/screenshots/apps.jpg" width="220" alt="App list"> | <img src="docs/screenshots/settings.jpg" width="220" alt="Settings"> |
+
+| Landscape home | Landscape app list |
+|:---:|:---:|
+| <img src="docs/screenshots/home-landscape.jpg" width="360" alt="Landscape home"> | <img src="docs/screenshots/apps-landscape.jpg" width="360" alt="Landscape app list"> |
+
 ## What it does
 
 - **Bubble home screen** in a honeycomb (default) or in rows; configurable columns, size, spacing, padding and

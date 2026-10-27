@@ -7,6 +7,16 @@ que se desplaza en vertical, con efecto de lupa hacia el centro, o en hileras re
 
 > Estado: en desarrollo. Probado en un Samsung con Android 13; falta probarlo en más equipos y versiones.
 
+## Capturas
+
+| Escritorio | Listado de apps | Ajustes |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/home.jpg" width="220" alt="Escritorio"> | <img src="docs/screenshots/apps.jpg" width="220" alt="Listado de apps"> | <img src="docs/screenshots/settings.jpg" width="220" alt="Ajustes"> |
+
+| Escritorio en horizontal | Listado en horizontal |
+|:---:|:---:|
+| <img src="docs/screenshots/home-landscape.jpg" width="360" alt="Escritorio en horizontal"> | <img src="docs/screenshots/apps-landscape.jpg" width="360" alt="Listado en horizontal"> |
+
 ## Qué hace
 
 - **Escritorio de burbujas** en panal (por defecto) o en hileras; columnas, tamaño, separación, relleno y encuadre
