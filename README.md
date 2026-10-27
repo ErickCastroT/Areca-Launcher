@@ -1,62 +1,66 @@
 # Areca Launcher
 
-Launcher para Android escrito en Kotlin con Jetpack Compose. Muestra tus apps favoritas como burbujas en un panal
-que se desplaza en vertical, con efecto de lupa hacia el centro, o en hileras rectas.
+🇬🇧 **English** · 🇲🇽 [Español](README.es.md)
 
-> Estado: en desarrollo. Probado en un Samsung con Android 13; falta probarlo en más equipos y versiones.
+An Android launcher written in Kotlin with Jetpack Compose. It shows your favorite apps as bubbles in a honeycomb
+that scrolls vertically with a magnifying effect toward the center, or in straight rows.
 
-## Qué hace
+> Status: in development. Tested on a Samsung phone running Android 13; it still needs testing on more devices and
+> Android versions.
 
-- **Escritorio de burbujas** en panal (por defecto) o en hileras; columnas, tamaño, separación, relleno y encuadre
-  configurables, y cinco formas de icono.
-- **Favoritas, carpetas y ocultas**: reordenar arrastrando, agrupar en carpetas, ocultar apps.
-- **Iconos**: paquetes de iconos instalados (ADW/Nova), icono distinto por app o desde la galería, y encuadre por app.
-- **Widgets** dentro del escritorio, arriba o debajo de las burbujas; en horizontal van en su propia columna.
-- **Listado de apps** con búsqueda, recientes, y en vertical separado por letra con barra de navegación rápida.
-- **Gestos** (opcionales): doble toque para bloquear, deslizar hacia abajo para las notificaciones y deslizar desde
-  abajo para las apps abiertas. Usan un servicio de accesibilidad que solo ejecuta esas acciones.
-- **Insignias de notificaciones** (opcionales): solo cuentan cuántas hay por app; no leen su contenido.
-- **Tema**: colores dinámicos de Android (Material You) o una paleta propia; claro y oscuro.
-- **Respaldo** de la configuración a un archivo, e idiomas español e inglés.
+## What it does
 
-Nada sale del teléfono: la app no usa internet ni envía datos.
+- **Bubble home screen** in a honeycomb (default) or in rows; configurable columns, size, spacing, padding and
+  framing, with five icon shapes.
+- **Favorites, folders and hidden apps**: reorder by dragging, group into folders, hide apps.
+- **Icons**: installed icon packs (ADW/Nova), a different icon per app or from the gallery, and per-app framing.
+- **Widgets** right on the home screen, above or below the bubbles; in landscape they sit in their own column.
+- **App list** with search and recents, and in portrait split by letter with a fast-scroll index.
+- **Gestures** (optional): double tap to lock, swipe down for notifications, and swipe up from the bottom for recent
+  apps. They use an accessibility service that only performs those actions.
+- **Notification badges** (optional): they only count how many notifications each app has; they never read the
+  content.
+- **Theme**: Android dynamic colors (Material You) or a custom palette; light and dark.
+- **Backup** of your settings to a file, and Spanish and English interface.
 
-## Compilar
+Nothing leaves the phone: the app does not use the internet and does not send any data.
 
-Requisitos: Android Studio reciente (o JDK 17+ y el SDK de Android con la API 35) y un dispositivo o emulador con
-Android 8.0 (API 26) o superior.
+## Build
+
+Requirements: a recent Android Studio (or JDK 17+ and the Android SDK with API 35) and a device or emulator running
+Android 8.0 (API 26) or later.
 
 ```bash
-./gradlew assembleDebug      # APK de depuración
-./gradlew installRelease     # instala la versión de producción en el dispositivo conectado
+./gradlew assembleDebug      # debug APK
+./gradlew installRelease     # installs the release build on the connected device
 ```
 
-Notas:
+Notes:
 
-- `local.properties` (ruta del SDK) lo crea Android Studio y no se sube al repositorio.
-- La variante `release` está firmada con la clave de **depuración**, solo para probar el rendimiento. Para publicar
-  hay que configurar una clave de firma propia.
-- Al compilar o instalar, el contador de [`version.properties`](version.properties) sube solo. La versión sigue el
-  formato `AA.MM.N` (año, mes y número de compilación del mes); el nombre en clave está en
+- `local.properties` (SDK path) is created by Android Studio and is not committed.
+- The `release` variant is signed with the **debug** key, only for performance testing. To publish, set up your own
+  signing key.
+- When you build or install, the counter in [`version.properties`](version.properties) goes up by itself. Versions
+  follow the `YY.MM.N` format (year, month and build number within the month); the codename lives in
   [`app/build.gradle.kts`](app/build.gradle.kts).
 
-## Estructura
+## Structure
 
 ```
 app/src/main/java/com/areca/launcher/
-  data/   ajustes (DataStore), apps, iconos, widgets, respaldo, carpetas
-  ui/     pantallas (escritorio, listado, ajustes), temas y componentes de Compose
+  data/   settings (DataStore), apps, icons, widgets, backup, folders
+  ui/     screens (home, app list, settings), themes and Compose components
 ```
 
-## Tecnología
+## Technology
 
-Kotlin 2.0, Jetpack Compose (Material 3), DataStore, AppWidgetHost y LauncherApps. Gradle 8.11 con Android Gradle
+Kotlin 2.0, Jetpack Compose (Material 3), DataStore, AppWidgetHost and LauncherApps. Gradle 8.11 with Android Gradle
 Plugin 8.9.
 
-## Licencias de terceros
+## Third-party licenses
 
-Ver [`LICENSES.md`](LICENSES.md).
+See [`LICENSES.md`](LICENSES.md).
 
-## Autor
+## Author
 
 Erick Castro, 2026.
