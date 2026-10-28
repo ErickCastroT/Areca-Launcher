@@ -8,6 +8,12 @@ that scrolls vertically with a magnifying effect toward the center, or in straig
 > Status: in development. Tested on a Samsung phone running Android 13; it still needs testing on more devices and
 > Android versions.
 
+## Inspiration
+
+The main inspiration is the Palm launcher, which showed up on a miniature phone in 2018. A few alternatives to that
+design existed over the years, but none of them is available today. Areca is my attempt to bring that peculiar concept
+back to life.
+
 ## Screenshots
 
 | Home screen | App list | Settings |

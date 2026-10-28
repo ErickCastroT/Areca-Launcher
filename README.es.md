@@ -7,6 +7,12 @@ que se desplaza en vertical, con efecto de lupa hacia el centro, o en hileras re
 
 > Estado: en desarrollo. Probado en un Samsung con Android 13; falta probarlo en más equipos y versiones.
 
+## Inspiración
+
+La inspiración principal es el launcher de Palm, que se vio en un teléfono miniatura en 2018. Con los años existieron
+algunas alternativas a ese diseño, pero ninguna está disponible hoy. Areca es mi intento de revivir ese concepto tan
+peculiar.
+
 ## Capturas
 
 | Escritorio | Listado de apps | Ajustes |
