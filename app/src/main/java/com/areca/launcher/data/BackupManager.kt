@@ -38,6 +38,8 @@ object BackupManager {
             put("wallpaperDim", s.wallpaperDim)
             put("accent", s.accent.name)
             put("themedIcons", s.themedIcons)
+            put("tiltEnabled", s.tiltEnabled)
+            put("tiltStrength", s.tiltStrength)
             put("packFallback", s.packFallback)
             put("iconPack", s.iconPack)
             put("showClock", s.showClock)
@@ -88,6 +90,8 @@ object BackupManager {
                 wallpaperDim = o.optInt("wallpaperDim", d.wallpaperDim).coerceIn(0, MAX_WALLPAPER_DIM),
                 accent = enumOr(o.optString("accent"), d.accent),
                 themedIcons = o.optBoolean("themedIcons", d.themedIcons),
+                tiltEnabled = o.optBoolean("tiltEnabled", d.tiltEnabled),
+                tiltStrength = o.optInt("tiltStrength", d.tiltStrength).coerceIn(MIN_TILT_STRENGTH, 100),
                 packFallback = o.optBoolean("packFallback", d.packFallback),
                 iconPack = o.optString("iconPack", d.iconPack),
                 showClock = o.optBoolean("showClock", d.showClock),

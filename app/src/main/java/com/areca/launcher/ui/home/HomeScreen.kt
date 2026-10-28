@@ -77,12 +77,12 @@ fun HomeScreen(vm: HomeViewModel) {
     }
 
     HorizontalPager(pager, Modifier.fillMaxSize()) { page ->
-        if (page == HomeViewModel.HOME_PAGE) HomePage(vm) else DrawerPage(vm)
+        if (page == HomeViewModel.HOME_PAGE) HomePage(vm, active = pager.currentPage == HomeViewModel.HOME_PAGE) else DrawerPage(vm)
     }
 }
 
 @Composable
-private fun HomePage(vm: HomeViewModel) {
+private fun HomePage(vm: HomeViewModel, active: Boolean) {
     val settings by vm.settings.collectAsStateWithLifecycle()
     val favorites by vm.favorites.collectAsStateWithLifecycle()
     val homeTick by vm.homeTick.collectAsStateWithLifecycle()
@@ -90,6 +90,11 @@ private fun HomePage(vm: HomeViewModel) {
     val density = LocalDensity.current
     val context = LocalContext.current
     val barPx = with(density) { BOTTOM_MARGIN.toPx() }
+    val tilt = rememberTilt(
+        enabled = settings.tiltEnabled,
+        active = active,
+        maxPx = with(density) { (TILT_MAX_DP * settings.tiltStrength / 100f).dp.toPx() },
+    )
 
     BoxWithConstraints(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().displayCutoutPadding()) {
         val maxH = constraints.maxHeight.toFloat()
@@ -107,7 +112,7 @@ private fun HomePage(vm: HomeViewModel) {
                     modifier = Modifier.padding(top = 6.dp),
                 )
             }
-        } else CompositionLocalProvider(LocalBadgeCounts provides badges) {
+        } else CompositionLocalProvider(LocalBadgeCounts provides badges, LocalTilt provides tilt) {
             // Horizontal con widgets: los widgets van centrados en una columna y las burbujas en la otra.
             val twoColumns = maxWidth > maxHeight && settings.widgetIds.isNotEmpty()
             @Composable
@@ -184,6 +189,9 @@ private fun HomePage(vm: HomeViewModel) {
 }
 
 private val BOTTOM_MARGIN = 16.dp
+
+/** Desplazamiento máximo (a intensidad 100 %) de las burbujas al inclinar el teléfono. */
+private const val TILT_MAX_DP = 18f
 
 /** Parte del ancho que ocupa la columna de widgets en horizontal. */
 private const val WIDGET_COLUMN_WEIGHT = 0.42f

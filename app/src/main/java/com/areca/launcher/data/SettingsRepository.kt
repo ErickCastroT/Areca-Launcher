@@ -30,6 +30,8 @@ class SettingsRepository(private val context: Context) {
         val CUSTOM_WALLPAPER = stringPreferencesKey("custom_wallpaper")
         val WALLPAPER_DIM = intPreferencesKey("wallpaper_dim")
         val ACCENT = stringPreferencesKey("accent")
+        val TILT_ENABLED = booleanPreferencesKey("tilt_enabled")
+        val TILT_STRENGTH = intPreferencesKey("tilt_strength")
         val THEMED_ICONS = booleanPreferencesKey("themed_icons")
         val PACK_FALLBACK = booleanPreferencesKey("pack_fallback")
         val ICON_PACK = stringPreferencesKey("icon_pack")
@@ -69,6 +71,8 @@ class SettingsRepository(private val context: Context) {
             customWallpaper = p[Keys.CUSTOM_WALLPAPER] ?: d.customWallpaper,
             wallpaperDim = p[Keys.WALLPAPER_DIM] ?: d.wallpaperDim,
             accent = p[Keys.ACCENT]?.let { runCatching { AccentColor.valueOf(it) }.getOrNull() } ?: d.accent,
+            tiltEnabled = p[Keys.TILT_ENABLED] ?: d.tiltEnabled,
+            tiltStrength = p[Keys.TILT_STRENGTH] ?: d.tiltStrength,
             themedIcons = p[Keys.THEMED_ICONS] ?: d.themedIcons,
             packFallback = p[Keys.PACK_FALLBACK] ?: d.packFallback,
             iconPack = p[Keys.ICON_PACK] ?: d.iconPack,
@@ -120,6 +124,8 @@ class SettingsRepository(private val context: Context) {
     suspend fun setCustomWallpaper(file: String) = edit { it[Keys.CUSTOM_WALLPAPER] = file }
     suspend fun setWallpaperDim(v: Int) = edit { it[Keys.WALLPAPER_DIM] = v }
     suspend fun setAccent(v: AccentColor) = edit { it[Keys.ACCENT] = v.name }
+    suspend fun setTiltEnabled(v: Boolean) = edit { it[Keys.TILT_ENABLED] = v }
+    suspend fun setTiltStrength(v: Int) = edit { it[Keys.TILT_STRENGTH] = v }
     suspend fun setThemedIcons(v: Boolean) = edit { it[Keys.THEMED_ICONS] = v }
     suspend fun setPackFallback(v: Boolean) = edit { it[Keys.PACK_FALLBACK] = v }
     suspend fun setIconPack(v: String) = edit { it[Keys.ICON_PACK] = v }
@@ -165,6 +171,8 @@ class SettingsRepository(private val context: Context) {
         p[Keys.WALLPAPER_DIM] = v.wallpaperDim
         p[Keys.ACCENT] = v.accent.name
         p[Keys.THEMED_ICONS] = v.themedIcons
+        p[Keys.TILT_ENABLED] = v.tiltEnabled
+        p[Keys.TILT_STRENGTH] = v.tiltStrength
         p[Keys.PACK_FALLBACK] = v.packFallback
         p[Keys.ICON_PACK] = v.iconPack
         p[Keys.SHOW_CLOCK] = v.showClock

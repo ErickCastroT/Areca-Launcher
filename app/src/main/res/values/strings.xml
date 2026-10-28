@@ -236,4 +236,7 @@
     <string name="themed_icons_hint">Pinta con el color del tema los iconos que ofrecen versión monocroma (Android 13+)</string>
     <string name="pack_fallback_title">Estilo del paquete en todas las apps</string>
     <string name="pack_fallback_hint">Las apps que el paquete no cubre reciben su fondo y su máscara</string>
+    <string name="settings_tilt">Mover al inclinar</string>
+    <string name="settings_tilt_hint">Las burbujas se deslizan suavemente cuando inclinas el teléfono. Usa el acelerómetro, que no requiere ningún permiso</string>
+    <string name="settings_tilt_strength">Intensidad</string>
 </resources>

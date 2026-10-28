@@ -342,6 +342,7 @@ private fun BubbleItem(
     onDragEnd: (moved: Boolean) -> Unit,
 ) {
     var menu by remember { mutableStateOf(false) }
+    val tilt = LocalTilt.current
     val icon by produceState<ImageBitmap?>(iconLoader.cached(app, iconPack, iconOverride), app, iconPack, iconOverride, iconLoader.styleKey) {
         value = withContext(Dispatchers.IO) { iconLoader.load(app, iconPack, iconOverride) }
     }
@@ -420,7 +421,7 @@ private fun BubbleItem(
             }
             .clickable { onLaunch(app) }
             .graphicsLayer {
-                val t = if (dragging) dragPointer() - rootCenter else offset.value
+                val t = if (dragging) dragPointer() - rootCenter else offset.value + tilt()
                 translationX = t.x
                 translationY = t.y
                 val s = 1f + LIFT_SCALE * lift

@@ -312,7 +312,12 @@ fun WatchGrid(
         }
     }
 
-    fun fishAt(index: Int) = fisheye(currentLayout.slots[index] + pan.value, size.width / 2f, size.height * 0.38f)
+    val tilt = LocalTilt.current
+    fun fishAt(index: Int): Fish {
+        val fish = fisheye(currentLayout.slots[index] + pan.value, size.width / 2f, size.height * 0.38f)
+        // Las del centro (más cercanas) se mueven más que las de los bordes: efecto de profundidad.
+        return fish.copy(offset = fish.offset + tilt() * fish.scale)
+    }
 
     /** Cuántas burbujas tienen casilla calculada; evita desbordes durante el instante en que cambia la lista. */
     fun placed() = minOf(items.size, currentLayout.slots.size)
@@ -607,6 +612,7 @@ private fun WatchBubble(
     actions: AppMenuActions,
 ) {
     val density = LocalDensity.current
+    val tilt = LocalTilt.current
     val shadowPx = with(density) { LIFT_SHADOW.toPx() }
     val openLabel = stringResource(R.string.a11y_open)
     val optionsLabel = stringResource(R.string.a11y_app_options)
@@ -650,7 +656,7 @@ private fun WatchBubble(
                 val sz = viewSize()
                 val fish = fisheye(slot.value + pan(), sz.width / 2f, sz.height * 0.38f)
                 val b = blend.value
-                val rel = lerp(fish.offset, dragRel(), b)
+                val rel = lerp(fish.offset + tilt() * fish.scale, dragRel(), b)
                 translationX = rel.x
                 translationY = rel.y
                 val s = lerp(fish.scale, 1.2f, b)

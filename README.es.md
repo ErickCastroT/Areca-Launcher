@@ -26,7 +26,7 @@ que se desplaza en vertical, con efecto de lupa hacia el centro, o en hileras re
 ## Qué hace
 
 - **Escritorio de burbujas** en panal (por defecto) o en hileras; columnas, tamaño, separación, relleno y encuadre
-  configurables, y cinco formas de icono.
+  configurables, y cinco formas de icono. Opcionalmente las burbujas se deslizan al inclinar el teléfono (acelerómetro, sin permisos).
 - **Favoritas, carpetas y ocultas**: reordenar arrastrando, agrupar en carpetas, ocultar apps.
 - **Iconos**: paquetes de iconos instalados (ADW/Nova, con fondo y máscara del paquete para las apps que no cubre), iconos tematizados monocromos de Android 13, icono distinto por app o desde la galería, y encuadre por app.
 - **Widgets** dentro del escritorio, arriba o debajo de las burbujas; en horizontal van en su propia columna.

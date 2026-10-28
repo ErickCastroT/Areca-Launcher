@@ -413,6 +413,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun wallpaperFile(name: String) = app.imageStore.wallpaperFile(name)
     fun setWallpaperDim(v: Int) = update { settingsRepo.setWallpaperDim(v) }
     fun setAccent(v: AccentColor) = update { settingsRepo.setAccent(v) }
+    fun setTiltEnabled(v: Boolean) = update { settingsRepo.setTiltEnabled(v) }
+    fun setTiltStrength(v: Int) = update { settingsRepo.setTiltStrength(v) }
     fun setThemedIcons(v: Boolean) = update { settingsRepo.setThemedIcons(v) }
     fun setPackFallback(v: Boolean) = update { settingsRepo.setPackFallback(v) }
     fun setIconPack(v: String) = update { settingsRepo.setIconPack(v) }

@@ -27,7 +27,7 @@ that scrolls vertically with a magnifying effect toward the center, or in straig
 ## What it does
 
 - **Bubble home screen** in a honeycomb (default) or in rows; configurable columns, size, spacing, padding and
-  framing, with five icon shapes.
+  framing, with five icon shapes. Optionally the bubbles drift as you tilt the phone (accelerometer, no permission needed).
 - **Favorites, folders and hidden apps**: reorder by dragging, group into folders, hide apps.
 - **Icons**: installed icon packs (ADW/Nova, applying the pack's background and mask to apps it does not cover), Android 13 monochrome themed icons, a different icon per app or from the gallery, and per-app framing.
 - **Widgets** right on the home screen, above or below the bubbles; in landscape they sit in their own column.

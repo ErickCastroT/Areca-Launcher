@@ -236,4 +236,7 @@
     <string name="themed_icons_hint">Tints icons that offer a monochrome version with the theme color (Android 13+)</string>
     <string name="pack_fallback_title">Pack style for all apps</string>
     <string name="pack_fallback_hint">Apps the pack does not cover get its background and mask</string>
+    <string name="settings_tilt">Move on tilt</string>
+    <string name="settings_tilt_hint">Bubbles drift gently as you tilt the phone. Uses the accelerometer, which needs no permission</string>
+    <string name="settings_tilt_strength">Strength</string>
 </resources>

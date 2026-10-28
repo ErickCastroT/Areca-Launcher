@@ -88,6 +88,10 @@ data class LauncherSettings(
     val accent: AccentColor = AccentColor.DEFAULT,
     /** Iconos monocromos de Android 13 teñidos con el color del tema (solo apps que los ofrecen). */
     val themedIcons: Boolean = false,
+    /** Las burbujas se deslizan según la inclinación del teléfono (acelerómetro; no requiere permiso). */
+    val tiltEnabled: Boolean = false,
+    /** Intensidad del efecto de inclinación, en % (10–100). */
+    val tiltStrength: Int = 50,
     /** Con paquete de iconos: las apps que el paquete no cubre reciben su fondo y su máscara. */
     val packFallback: Boolean = true,
     val iconPack: String = "",
@@ -131,3 +135,4 @@ fun LauncherSettings.zoomFor(appKey: String): Int =
 
 const val DEFAULT_ICON_ZOOM = 150
 const val MAX_WALLPAPER_DIM = 70
+const val MIN_TILT_STRENGTH = 10

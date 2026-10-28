@@ -48,12 +48,14 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.areca.launcher.BuildConfig
 import com.areca.launcher.R
+import com.areca.launcher.ui.home.hasAccelerometer
 import com.areca.launcher.ui.MAX_ICON_ZOOM
 import com.areca.launcher.ui.MIN_ICON_ZOOM
 import com.areca.launcher.data.LanguageStore
 import com.areca.launcher.data.GridLayout
 import com.areca.launcher.data.IconShape
 import com.areca.launcher.data.ThemeMode
+import com.areca.launcher.data.MIN_TILT_STRENGTH
 import com.areca.launcher.ui.HomeViewModel
 import com.areca.launcher.ui.Screen
 import com.areca.launcher.ui.theme.toShape
@@ -176,6 +178,24 @@ fun SettingsScreen(vm: HomeViewModel) {
                         steps = maxColumns - 3,
                         onChange = { vm.setColumns(it.toInt()) },
                     )
+                    if (hasAccelerometer(LocalContext.current)) {
+                        ToggleRow(
+                            title = stringResource(R.string.settings_tilt),
+                            subtitle = stringResource(R.string.settings_tilt_hint),
+                            checked = s.tiltEnabled,
+                            onChange = vm::setTiltEnabled,
+                        )
+                        if (s.tiltEnabled) {
+                            SliderRow(
+                                label = stringResource(R.string.settings_tilt_strength),
+                                valueText = "${s.tiltStrength}%",
+                                value = s.tiltStrength.toFloat(),
+                                range = MIN_TILT_STRENGTH.toFloat()..100f,
+                                steps = (100 - MIN_TILT_STRENGTH) / 10 - 1,
+                                onChange = { vm.setTiltStrength((it / 10).toInt() * 10) },
+                            )
+                        }
+                    }
                 }
             }
             SettingsPage.LOOK -> {
