@@ -72,6 +72,11 @@ app/src/main/java/com/areca/launcher/
 Kotlin 2.0, Jetpack Compose (Material 3), DataStore, AppWidgetHost y LauncherApps. Gradle 8.11 con Android Gradle
 Plugin 8.9.
 
+## Licencia
+
+Areca Launcher es de código disponible bajo la [PolyForm Strict License 1.0.0](LICENSE): puedes leer el código y usar
+la app con fines no comerciales, pero no distribuirla ni hacer cambios u obras derivadas.
+
 ## Licencias de terceros
 
 Ver [`LICENSES.md`](LICENSES.md).
