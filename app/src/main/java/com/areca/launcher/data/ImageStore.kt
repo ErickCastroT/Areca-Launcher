@@ -25,6 +25,22 @@ class ImageStore(private val context: Context) {
         return name
     }
 
+    /**
+     * Guarda la imagen de fondo del escritorio, reducida al tamaño de la pantalla, como JPEG. Cada imagen lleva
+     * un nombre nuevo para que la caché de la pantalla se renueve; la anterior se borra. Devuelve el nombre.
+     */
+    fun saveWallpaper(uri: Uri): String? {
+        val metrics = context.resources.displayMetrics
+        val bitmap = decode(uri, max(metrics.widthPixels, metrics.heightPixels)) ?: return null
+        val name = "${UUID.randomUUID()}.jpg"
+        val folder = dir("wallpapers")
+        File(folder, name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+        folder.listFiles()?.filter { it.name != name }?.forEach { it.delete() }
+        return name
+    }
+
+    fun wallpaperFile(name: String): File = File(File(context.filesDir, "wallpapers"), name)
+
     /** Borra las imágenes de iconos personalizados desde galería. */
     fun clearIcons() {
         dir("icons").listFiles()?.forEach { it.delete() }

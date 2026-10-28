@@ -35,6 +35,10 @@ object BackupManager {
             put("layout", s.layout.name)
             put("themeMode", s.themeMode.name)
             put("wallpaper", s.wallpaper.name)
+            put("wallpaperDim", s.wallpaperDim)
+            put("accent", s.accent.name)
+            put("themedIcons", s.themedIcons)
+            put("packFallback", s.packFallback)
             put("iconPack", s.iconPack)
             put("showClock", s.showClock)
             put("showRecents", s.showRecents)
@@ -79,8 +83,12 @@ object BackupManager {
                 iconZooms = o.optJSONObject("iconZooms")?.let { j -> j.keys().asSequence().associateWith { j.getInt(it) } } ?: emptyMap(),
                 iconShape = enumOr(o.optString("iconShape"), d.iconShape),
                 layout = enumOr(o.optString("layout"), d.layout),
-                themeMode = enumOr(o.optString("themeMode"), d.themeMode),
+                themeMode = ThemeMode.parse(o.optString("themeMode")) ?: d.themeMode,
                 wallpaper = enumOr(o.optString("wallpaper"), d.wallpaper),
+                wallpaperDim = o.optInt("wallpaperDim", d.wallpaperDim).coerceIn(0, MAX_WALLPAPER_DIM),
+                accent = enumOr(o.optString("accent"), d.accent),
+                themedIcons = o.optBoolean("themedIcons", d.themedIcons),
+                packFallback = o.optBoolean("packFallback", d.packFallback),
                 iconPack = o.optString("iconPack", d.iconPack),
                 showClock = o.optBoolean("showClock", d.showClock),
                 showRecents = o.optBoolean("showRecents", d.showRecents),

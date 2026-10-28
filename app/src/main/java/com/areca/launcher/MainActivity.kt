@@ -47,7 +47,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settings by viewModel.settings.collectAsStateWithLifecycle()
             // Iconos de las barras del sistema con el contraste que pide el tema actual.
-            val darkUi = settings.themeMode == ThemeMode.ARECA || isSystemInDarkTheme()
+            val darkBackdrop by viewModel.darkHomeBackdrop.collectAsStateWithLifecycle()
+            val darkUi = settings.themeMode != ThemeMode.SYSTEM || isSystemInDarkTheme() || darkBackdrop
             DisposableEffect(darkUi) {
                 enableEdgeToEdge(
                     statusBarStyle = if (darkUi) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity() {
                 )
                 onDispose { }
             }
-            ArecaTheme(settings.themeMode) { ArecaRoot(viewModel) }
+            ArecaTheme(settings.themeMode, settings.accent) { ArecaRoot(viewModel) }
         }
         if (savedInstanceState == null) handleIntent(intent)
         viewModel.widgetStarter = ::beginAddWidget

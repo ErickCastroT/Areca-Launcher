@@ -7,13 +7,19 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.asAndroidBitmap
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Process
 import android.util.LruCache
 import androidx.compose.ui.graphics.ImageBitmap
@@ -38,6 +44,17 @@ class IconLoader(
     // y el resto es sangrado que se ve al reducir el encuadre.
     private val sizePx = (150 * context.resources.displayMetrics.density).toInt()
 
+    /** Colores de los iconos tematizados: [tile] es el fondo de la burbuja y [glyph] el dibujo. */
+    class Tint(val tile: Int, val glyph: Int)
+
+    /**
+     * Estilo que se aplica a los iconos del sistema. Es estado de Compose y [styleKey] entra en la clave de caché
+     * y en la de las pantallas, así que al cambiarlo los iconos se vuelven a dibujar solos.
+     */
+    var themed: Tint? by mutableStateOf(null)
+    var packFallback: Boolean by mutableStateOf(true)
+    val styleKey: String get() = "${themed?.let { "${it.tile}.${it.glyph}" }.orEmpty()}|$packFallback"
+
     /** Icono personalizado de una app (para las miniaturas dentro de una carpeta); lo conecta el ViewModel. */
     var overrideOf: (String) -> String? = { null }
 
@@ -50,10 +67,17 @@ class IconLoader(
         cache.get(key)?.let { return it }
         if (app.isFolder) return renderFolder(app, pack).also { cache.put(key, it) }
         val component = ComponentName(app.packageName, app.className)
-        val drawable = overrideDrawable(override)
-            ?: (if (pack.isNotEmpty()) packs.iconFor(pack, component) else null)
-            ?: systemIcon(component)
-        return render(drawable).also { cache.put(key, it) }
+        val styled = overrideDrawable(override) ?: (if (pack.isNotEmpty()) packs.iconFor(pack, component) else null)
+        if (styled != null) return render(styled).also { cache.put(key, it) }
+        // Sin icono propio ni del paquete: el del sistema, recompuesto con el estilo del paquete o tematizado.
+        val system = systemIcon(component)
+        val packStyle = if (pack.isNotEmpty() && packFallback) packs.styleOf(pack) else null
+        val image = when {
+            system != null && packStyle != null -> renderWithPackStyle(system, packStyle, pack, app.packageName)
+            system is AdaptiveIconDrawable && themed != null -> renderThemed(system, themed!!) ?: render(system)
+            else -> render(system)
+        }
+        return image.also { cache.put(key, it) }
     }
 
     /** Vista previa de un icono personalizado (selector de iconos). Bloqueante. */
@@ -101,6 +125,68 @@ class IconLoader(
         return bitmap.asImageBitmap()
     }
 
+    /**
+     * Icono monocromo de Android 13 sobre el fondo [Tint.tile], con el dibujo en [Tint.glyph].
+     * Devuelve null si el icono no trae capa monocroma (entonces se deja el icono original, como hace Android).
+     */
+    private fun renderThemed(icon: AdaptiveIconDrawable, tint: Tint): ImageBitmap? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
+        val mono = icon.monochrome?.mutate() ?: return null
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        canvas.drawColor(tint.tile)
+        mono.setTint(tint.glyph)
+        mono.setBounds(0, 0, sizePx, sizePx)
+        mono.draw(canvas)
+        return bitmap.asImageBitmap()
+    }
+
+    /**
+     * Recompone un icono que el paquete no cubre, como hacen ADW y Nova: fondo (iconback, uno según la app),
+     * el icono de la app reducido por el factor de escala y recortado con la máscara, y la capa superior.
+     * Todo ocupa la zona visible estándar, igual que los iconos del propio paquete.
+     */
+    private fun renderWithPackStyle(source: Drawable, style: IconPackManager.Style, pack: String, packageName: String): ImageBitmap {
+        val side = (sizePx * VIEWPORT).toInt()
+        val tile = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(tile)
+        fun draw(name: String?, target: Canvas = canvas) {
+            val d = name?.let { packs.drawableByName(pack, it) } ?: return
+            d.setBounds(0, 0, side, side)
+            d.draw(target)
+        }
+        if (style.backs.isNotEmpty()) draw(style.backs[Math.floorMod(packageName.hashCode(), style.backs.size)])
+
+        // El icono de la app, en su propia capa para poder recortarlo con la máscara sin tocar el fondo.
+        val appLayer = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
+        val appCanvas = Canvas(appLayer)
+        val content = (side * style.scale).toInt()
+        val left = (side - content) / 2
+        if (source is AdaptiveIconDrawable) {
+            // Las capas adaptables miden 108 dp y solo se ve el centro (72 dp): se amplían para que ese centro llene [content].
+            val full = content * 3 / 2
+            val start = (side - full) / 2
+            source.background?.apply { setBounds(start, start, start + full, start + full); draw(appCanvas) }
+            source.foreground?.apply { setBounds(start, start, start + full, start + full); draw(appCanvas) }
+        } else {
+            source.setBounds(left, left, left + content, left + content)
+            source.draw(appCanvas)
+        }
+        if (style.mask != null) {
+            val maskPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OUT) }
+            val mask = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
+            draw(style.mask, Canvas(mask))
+            appCanvas.drawBitmap(mask, 0f, 0f, maskPaint)
+        }
+        canvas.drawBitmap(appLayer, 0f, 0f, null)
+        draw(style.upon)
+
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val offset = (sizePx - side) / 2f
+        Canvas(bitmap).drawBitmap(tile, offset, offset, Paint(Paint.FILTER_BITMAP_FLAG))
+        return bitmap.asImageBitmap()
+    }
+
     /** Fondo oscuro y hasta cuatro miniaturas de las apps de la carpeta, centradas según cuántas haya. */
     private fun renderFolder(folder: AppInfo, pack: String): ImageBitmap {
         val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
@@ -143,7 +229,7 @@ class IconLoader(
 
     private fun cacheKey(app: AppInfo, pack: String, override: String?): String {
         val members = if (app.isFolder) app.folderMembers.joinToString(",") { it.key + "=" + overrideOf(it.key).orEmpty() } else ""
-        return "$pack|${override.orEmpty()}|${app.key}|$members"
+        return "$pack|${override.orEmpty()}|${app.key}|$members|$styleKey"
     }
 
     private companion object {

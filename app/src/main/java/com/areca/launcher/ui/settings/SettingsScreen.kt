@@ -1,5 +1,6 @@
 package com.areca.launcher.ui.settings
 
+import android.os.Build
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -53,7 +54,6 @@ import com.areca.launcher.data.LanguageStore
 import com.areca.launcher.data.GridLayout
 import com.areca.launcher.data.IconShape
 import com.areca.launcher.data.ThemeMode
-import com.areca.launcher.data.WallpaperMode
 import com.areca.launcher.ui.HomeViewModel
 import com.areca.launcher.ui.Screen
 import com.areca.launcher.ui.theme.toShape
@@ -193,28 +193,48 @@ fun SettingsScreen(vm: HomeViewModel) {
                         },
                         onClick = { if (s.iconOverrides.isNotEmpty() || s.iconZooms.isNotEmpty()) confirmReset = true },
                     )
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        ToggleRow(
+                            title = stringResource(R.string.themed_icons_title),
+                            subtitle = stringResource(R.string.themed_icons_hint),
+                            checked = s.themedIcons,
+                            onChange = vm::setThemedIcons,
+                        )
+                    }
+                    if (s.iconPack.isNotEmpty()) {
+                        ToggleRow(
+                            title = stringResource(R.string.pack_fallback_title),
+                            subtitle = stringResource(R.string.pack_fallback_hint),
+                            checked = s.packFallback,
+                            onChange = vm::setPackFallback,
+                        )
+                    }
                     Text(stringResource(R.string.label_theme), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 12.dp))
                     SegmentedChoice(
-                        options = listOf(stringResource(R.string.theme_system), stringResource(R.string.theme_areca)),
-                        selected = if (s.themeMode == ThemeMode.SYSTEM) 0 else 1,
-                        onSelect = { vm.setThemeMode(if (it == 0) ThemeMode.SYSTEM else ThemeMode.ARECA) },
+                        options = listOf(stringResource(R.string.theme_system), stringResource(R.string.theme_dark), stringResource(R.string.theme_amoled)),
+                        selected = s.themeMode.ordinal,
+                        onSelect = { vm.setThemeMode(ThemeMode.entries[it]) },
                     )
                     Text(
-                        stringResource(if (s.themeMode == ThemeMode.SYSTEM) R.string.theme_system_hint else R.string.theme_areca_hint),
+                        stringResource(
+                            when (s.themeMode) {
+                                ThemeMode.SYSTEM -> R.string.theme_system_hint
+                                ThemeMode.DARK -> R.string.theme_dark_hint
+                                ThemeMode.AMOLED -> R.string.theme_amoled_hint
+                            },
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    Text(stringResource(R.string.label_accent), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 12.dp))
+                    AccentChoice(selected = s.accent, onSelect = vm::setAccent)
                     ValueRow(
                         title = stringResource(R.string.settings_wallpaper_title),
                         value = stringResource(R.string.settings_wallpaper_hint),
                         onClick = vm::openWallpaperDialog,
                     )
                     Text(stringResource(R.string.label_background), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 12.dp))
-                    SegmentedChoice(
-                        options = listOf(stringResource(R.string.wallpaper_system), stringResource(R.string.wallpaper_black)),
-                        selected = if (s.wallpaper == WallpaperMode.SYSTEM) 0 else 1,
-                        onSelect = { vm.setWallpaper(if (it == 0) WallpaperMode.SYSTEM else WallpaperMode.BLACK) },
-                    )
+                    WallpaperChoice(vm, s)
                 }
             }
             SettingsPage.SCREEN -> {

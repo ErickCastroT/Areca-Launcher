@@ -27,6 +27,11 @@ class SettingsRepository(private val context: Context) {
         val LAYOUT = stringPreferencesKey("layout")
         val THEME = stringPreferencesKey("theme_mode")
         val WALLPAPER = stringPreferencesKey("wallpaper")
+        val CUSTOM_WALLPAPER = stringPreferencesKey("custom_wallpaper")
+        val WALLPAPER_DIM = intPreferencesKey("wallpaper_dim")
+        val ACCENT = stringPreferencesKey("accent")
+        val THEMED_ICONS = booleanPreferencesKey("themed_icons")
+        val PACK_FALLBACK = booleanPreferencesKey("pack_fallback")
         val ICON_PACK = stringPreferencesKey("icon_pack")
         val HIDE_STATUS_BAR = booleanPreferencesKey("hide_status_bar")
         val DOUBLE_TAP_LOCK = booleanPreferencesKey("double_tap_lock")
@@ -59,8 +64,13 @@ class SettingsRepository(private val context: Context) {
                 .associate { it[0] to it[1].toInt() },
             iconShape = p[Keys.ICON_SHAPE]?.let { runCatching { IconShape.valueOf(it) }.getOrNull() } ?: d.iconShape,
             layout = p[Keys.LAYOUT]?.let { runCatching { GridLayout.valueOf(it) }.getOrNull() } ?: d.layout,
-            themeMode = p[Keys.THEME]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: d.themeMode,
+            themeMode = ThemeMode.parse(p[Keys.THEME]) ?: d.themeMode,
             wallpaper = p[Keys.WALLPAPER]?.let { runCatching { WallpaperMode.valueOf(it) }.getOrNull() } ?: d.wallpaper,
+            customWallpaper = p[Keys.CUSTOM_WALLPAPER] ?: d.customWallpaper,
+            wallpaperDim = p[Keys.WALLPAPER_DIM] ?: d.wallpaperDim,
+            accent = p[Keys.ACCENT]?.let { runCatching { AccentColor.valueOf(it) }.getOrNull() } ?: d.accent,
+            themedIcons = p[Keys.THEMED_ICONS] ?: d.themedIcons,
+            packFallback = p[Keys.PACK_FALLBACK] ?: d.packFallback,
             iconPack = p[Keys.ICON_PACK] ?: d.iconPack,
             hideStatusBar = p[Keys.HIDE_STATUS_BAR] ?: d.hideStatusBar,
             doubleTapLock = p[Keys.DOUBLE_TAP_LOCK] ?: d.doubleTapLock,
@@ -107,6 +117,11 @@ class SettingsRepository(private val context: Context) {
     suspend fun setLayout(v: GridLayout) = edit { it[Keys.LAYOUT] = v.name }
     suspend fun setThemeMode(v: ThemeMode) = edit { it[Keys.THEME] = v.name }
     suspend fun setWallpaper(v: WallpaperMode) = edit { it[Keys.WALLPAPER] = v.name }
+    suspend fun setCustomWallpaper(file: String) = edit { it[Keys.CUSTOM_WALLPAPER] = file }
+    suspend fun setWallpaperDim(v: Int) = edit { it[Keys.WALLPAPER_DIM] = v }
+    suspend fun setAccent(v: AccentColor) = edit { it[Keys.ACCENT] = v.name }
+    suspend fun setThemedIcons(v: Boolean) = edit { it[Keys.THEMED_ICONS] = v }
+    suspend fun setPackFallback(v: Boolean) = edit { it[Keys.PACK_FALLBACK] = v }
     suspend fun setIconPack(v: String) = edit { it[Keys.ICON_PACK] = v }
     suspend fun setHideStatusBar(v: Boolean) = edit { it[Keys.HIDE_STATUS_BAR] = v }
     suspend fun setDoubleTapLock(v: Boolean) = edit { it[Keys.DOUBLE_TAP_LOCK] = v }
@@ -147,6 +162,10 @@ class SettingsRepository(private val context: Context) {
         p[Keys.LAYOUT] = v.layout.name
         p[Keys.THEME] = v.themeMode.name
         p[Keys.WALLPAPER] = v.wallpaper.name
+        p[Keys.WALLPAPER_DIM] = v.wallpaperDim
+        p[Keys.ACCENT] = v.accent.name
+        p[Keys.THEMED_ICONS] = v.themedIcons
+        p[Keys.PACK_FALLBACK] = v.packFallback
         p[Keys.ICON_PACK] = v.iconPack
         p[Keys.SHOW_CLOCK] = v.showClock
         p[Keys.SHOW_RECENTS] = v.showRecents

@@ -89,7 +89,7 @@ fun IconPickerDialog(vm: HomeViewModel, target: AppInfo) {
                 // Encuadre de este icono: la vista previa muestra el efecto al instante.
                 val zoom = settings.zoomFor(target.key)
                 val custom = target.key in settings.iconZooms
-                val previewIcon by produceState<ImageBitmap?>(vm.iconLoader.cached(target, settings.iconPack, settings.iconOverrides[target.key]), target, settings.iconPack, settings.iconOverrides[target.key]) {
+                val previewIcon by produceState<ImageBitmap?>(vm.iconLoader.cached(target, settings.iconPack, settings.iconOverrides[target.key]), target, settings.iconPack, settings.iconOverrides[target.key], vm.iconLoader.styleKey) {
                     value = withContext(Dispatchers.IO) { vm.iconLoader.load(target, settings.iconPack, settings.iconOverrides[target.key]) }
                 }
                 Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {

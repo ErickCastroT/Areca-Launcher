@@ -19,6 +19,7 @@ import com.areca.launcher.data.IconPackInfo
 import com.areca.launcher.data.IconShape
 import com.areca.launcher.data.LauncherSettings
 import com.areca.launcher.data.SystemGestures
+import com.areca.launcher.data.AccentColor
 import com.areca.launcher.data.ThemeMode
 import com.areca.launcher.data.WallpaperMode
 import com.areca.launcher.data.Backup
@@ -342,6 +343,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _homePage = MutableStateFlow(HOME_PAGE)
     fun setHomePage(page: Int) { _homePage.value = page }
 
+    /** El escritorio se ve sobre un fondo propio (oscuro): las barras del sistema llevan iconos claros. */
+    val darkHomeBackdrop: StateFlow<Boolean> = combine(settings, _screen, _homePage) { s, screen, page ->
+        s.wallpaper != WallpaperMode.SYSTEM && screen == Screen.HOME && page == HOME_PAGE
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     /** La barra de estado solo se oculta en el escritorio de burbujas (no en menús ni en el listado de apps). */
     val statusBarHidden: StateFlow<Boolean> = combine(settings, _screen, _homePage) { s, screen, page ->
         s.hideStatusBar && screen == Screen.HOME && page == HOME_PAGE
@@ -395,6 +401,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun setLayout(v: GridLayout) = update { settingsRepo.setLayout(v) }
     fun setThemeMode(v: ThemeMode) = update { settingsRepo.setThemeMode(v) }
     fun setWallpaper(v: WallpaperMode) = update { settingsRepo.setWallpaper(v) }
+    /** Usa una imagen de la galería como fondo del escritorio (reducida al tamaño de la pantalla). */
+    fun setCustomWallpaper(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            this@HomeViewModel.app.imageStore.saveWallpaper(uri)?.let {
+                settingsRepo.setCustomWallpaper(it)
+                settingsRepo.setWallpaper(WallpaperMode.CUSTOM)
+            }
+        }
+    }
+    fun wallpaperFile(name: String) = app.imageStore.wallpaperFile(name)
+    fun setWallpaperDim(v: Int) = update { settingsRepo.setWallpaperDim(v) }
+    fun setAccent(v: AccentColor) = update { settingsRepo.setAccent(v) }
+    fun setThemedIcons(v: Boolean) = update { settingsRepo.setThemedIcons(v) }
+    fun setPackFallback(v: Boolean) = update { settingsRepo.setPackFallback(v) }
     fun setIconPack(v: String) = update { settingsRepo.setIconPack(v) }
     fun setClockY(v: Float) = update { settingsRepo.setClockY(v) }
     fun setHideStatusBar(v: Boolean) = update { settingsRepo.setHideStatusBar(v) }

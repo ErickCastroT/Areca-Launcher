@@ -1,0 +1,5 @@
+# Perfil de línea base de Areca: el código de la app se compila por adelantado (AOT) para acelerar el arranque en frío
+# y evitar tirones en la primera apertura del escritorio, el cajón y los ajustes. Los comodines los expande
+# profgen contra las clases reales; las bibliotecas de Compose aportan sus propios perfiles al compilar.
+HSPLcom/areca/launcher/**;->**(**)**
+Lcom/areca/launcher/**;

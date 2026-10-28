@@ -2,6 +2,7 @@ package com.areca.launcher.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -12,6 +13,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -20,6 +22,7 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.areca.launcher.R
+import com.areca.launcher.data.AccentColor
 import com.areca.launcher.data.ThemeMode
 
 /**
@@ -41,6 +44,16 @@ private val ArecaDark = darkColorScheme(
     onSurfaceVariant = Color(0xFF8FA898),
     outline = Color(0xFF2A3F33),
     error = Color(0xFFEB6A7D),
+)
+
+/** Negro puro para pantallas AMOLED: fondo y superficies en negro, con contenedores apenas más claros para que se distingan. */
+private val ArecaAmoled = ArecaDark.copy(
+    background = Color.Black,
+    surface = Color.Black,
+    surfaceContainer = Color(0xFF0B0F0D),
+    surfaceContainerHigh = Color(0xFF141A17),
+    surfaceVariant = Color(0xFF222C26),
+    outline = Color(0xFF222C26),
 )
 
 private val ArecaLight = lightColorScheme(
@@ -86,19 +99,28 @@ private val ArecaTypography = Typography(
 
 /**
  * Integración con el tema global de Android: en modo SYSTEM usa los colores dinámicos del fondo de
- * pantalla (Material You, Android 12+) y sigue el modo claro/oscuro del sistema.
+ * pantalla (Material You, Android 12+) y sigue el modo claro/oscuro del sistema. DARK y AMOLED usan la paleta propia.
  */
+/** Cambia el acento (primary/onPrimary); el tono se elige según el fondo sea oscuro o claro. */
+private fun withAccent(scheme: ColorScheme, accent: AccentColor): ColorScheme {
+    if (accent == AccentColor.DEFAULT) return scheme
+    val primary = Color(if (scheme.background.luminance() < 0.5f) accent.dark else accent.light)
+    return scheme.copy(primary = primary, onPrimary = if (primary.luminance() > 0.45f) Color(0xFF101410) else Color.White)
+}
+
 @Composable
-fun ArecaTheme(mode: ThemeMode, content: @Composable () -> Unit) {
+fun ArecaTheme(mode: ThemeMode, accent: AccentColor = AccentColor.DEFAULT, content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()
     val context = LocalContext.current
-    val scheme = when {
-        mode == ThemeMode.ARECA -> ArecaDark
+    val base = when {
+        mode == ThemeMode.DARK -> ArecaDark
+        mode == ThemeMode.AMOLED -> ArecaAmoled
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
             if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         dark -> ArecaDark
         else -> ArecaLight
     }
+    val scheme = withAccent(base, accent)
     MaterialTheme(colorScheme = scheme, typography = ArecaTypography) {
         CompositionLocalProvider(LocalContentColor provides scheme.onBackground, content = content)
     }

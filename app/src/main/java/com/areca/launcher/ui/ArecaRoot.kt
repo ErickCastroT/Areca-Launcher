@@ -18,12 +18,19 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.areca.launcher.ui.home.bottomSwipeUp
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
+import com.areca.launcher.data.IconLoader
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.areca.launcher.data.WallpaperMode
+import com.areca.launcher.ui.settings.brush
 import com.areca.launcher.ui.apps.AppsScreen
 import com.areca.launcher.ui.home.HomeScreen
 import com.areca.launcher.ui.settings.AboutScreen
@@ -48,9 +55,22 @@ fun ArecaRoot(vm: HomeViewModel) {
 
     BackHandler(enabled = screen != Screen.HOME) { if (screen == Screen.ABOUT) vm.open(Screen.SETTINGS) else vm.goHome() }
 
-    val background = when (settings.wallpaper) {
-        WallpaperMode.SYSTEM -> Color.Transparent
-        WallpaperMode.BLACK -> Color.Black
+    val background = settings.wallpaper.brush()
+
+    // Los iconos tematizados toman su color del tema y el acento vigentes.
+    val scheme = MaterialTheme.colorScheme
+    val tint = remember(settings.themedIcons, scheme.primary, scheme.background) {
+        if (!settings.themedIcons) null else {
+            val dark = scheme.background.luminance() < 0.5f
+            IconLoader.Tint(
+                tile = (if (dark) lerp(Color.Black, scheme.primary, 0.28f) else lerp(Color.White, scheme.primary, 0.2f)).toArgb(),
+                glyph = (if (dark) lerp(scheme.primary, Color.White, 0.55f) else lerp(scheme.primary, Color.Black, 0.35f)).toArgb(),
+            )
+        }
+    }
+    SideEffect {
+        vm.iconLoader.themed = tint
+        vm.iconLoader.packFallback = settings.packFallback
     }
 
     // Zona del gesto "apps abiertas": la franja del sistema más 80 dp (el sistema reconoce solo ~20 dp).
@@ -64,6 +84,7 @@ fun ArecaRoot(vm: HomeViewModel) {
             onTrigger = vm::openRecentApps,
         ),
     ) {
+        WallpaperBackdrop(settings, vm)
         // La transición responde a la acción: al abrir, la pantalla sube desde abajo; al volver, se retira.
         AnimatedContent(
             targetState = screen,

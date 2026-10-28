@@ -106,7 +106,7 @@ private fun PreviewBubble(
 ) {
     val override = settings.iconOverrides[app.key]
     val icon by produceState<ImageBitmap?>(
-        vm.iconLoader.cached(app, settings.iconPack, override), app, settings.iconPack, override,
+        vm.iconLoader.cached(app, settings.iconPack, override), app, settings.iconPack, override, vm.iconLoader.styleKey,
     ) {
         value = withContext(Dispatchers.IO) { vm.iconLoader.load(app, settings.iconPack, override) }
     }

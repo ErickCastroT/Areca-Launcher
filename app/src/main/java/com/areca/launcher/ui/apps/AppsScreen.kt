@@ -109,7 +109,7 @@ fun AppsScreen(vm: HomeViewModel) {
 
 @Composable
 internal fun AppIcon(app: AppInfo, iconPack: String, iconOverride: String?, shape: Shape, paddingPercent: Int, vm: HomeViewModel, zoomPercent: Int = DEFAULT_ICON_ZOOM, contentDescription: String? = null) {
-    val icon by produceState<ImageBitmap?>(vm.iconLoader.cached(app, iconPack, iconOverride), app, iconPack, iconOverride) {
+    val icon by produceState<ImageBitmap?>(vm.iconLoader.cached(app, iconPack, iconOverride), app, iconPack, iconOverride, vm.iconLoader.styleKey) {
         value = withContext(Dispatchers.IO) { vm.iconLoader.load(app, iconPack, iconOverride) }
     }
     icon?.let {

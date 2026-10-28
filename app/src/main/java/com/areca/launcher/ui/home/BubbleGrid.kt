@@ -342,7 +342,7 @@ private fun BubbleItem(
     onDragEnd: (moved: Boolean) -> Unit,
 ) {
     var menu by remember { mutableStateOf(false) }
-    val icon by produceState<ImageBitmap?>(iconLoader.cached(app, iconPack, iconOverride), app, iconPack, iconOverride) {
+    val icon by produceState<ImageBitmap?>(iconLoader.cached(app, iconPack, iconOverride), app, iconPack, iconOverride, iconLoader.styleKey) {
         value = withContext(Dispatchers.IO) { iconLoader.load(app, iconPack, iconOverride) }
     }
     DisposableEffect(app.key) { onDispose { bounds.remove(app.key) } }
