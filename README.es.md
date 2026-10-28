@@ -17,18 +17,25 @@ que se desplaza en vertical, con efecto de lupa hacia el centro, o en hileras re
 |:---:|:---:|
 | <img src="docs/screenshots/home-landscape.jpg" width="360" alt="Escritorio en horizontal"> | <img src="docs/screenshots/apps-landscape.jpg" width="360" alt="Listado en horizontal"> |
 
+### En movimiento
+
+| Escritorio: lupa y atajos | Cajón: letras y desplazamiento rápido | Apariencia: tema, acento e iconos | Fondos |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/demo-home.gif" width="200" alt="Escritorio en movimiento"> | <img src="docs/screenshots/demo-drawer.gif" width="200" alt="Cajón de apps en movimiento"> | <img src="docs/screenshots/demo-settings.gif" width="200" alt="Apariencia en movimiento"> | <img src="docs/screenshots/demo-backgrounds.gif" width="200" alt="Fondos"> |
+
 ## Qué hace
 
 - **Escritorio de burbujas** en panal (por defecto) o en hileras; columnas, tamaño, separación, relleno y encuadre
   configurables, y cinco formas de icono.
 - **Favoritas, carpetas y ocultas**: reordenar arrastrando, agrupar en carpetas, ocultar apps.
-- **Iconos**: paquetes de iconos instalados (ADW/Nova), icono distinto por app o desde la galería, y encuadre por app.
+- **Iconos**: paquetes de iconos instalados (ADW/Nova, con fondo y máscara del paquete para las apps que no cubre), iconos tematizados monocromos de Android 13, icono distinto por app o desde la galería, y encuadre por app.
 - **Widgets** dentro del escritorio, arriba o debajo de las burbujas; en horizontal van en su propia columna.
 - **Listado de apps** con búsqueda, recientes, y en vertical separado por letra con barra de navegación rápida.
 - **Gestos** (opcionales): doble toque para bloquear, deslizar hacia abajo para las notificaciones y deslizar desde
   abajo para las apps abiertas. Usan un servicio de accesibilidad que solo ejecuta esas acciones.
 - **Insignias de notificaciones** (opcionales): solo cuentan cuántas hay por app; no leen su contenido.
-- **Tema**: colores dinámicos de Android (Material You) o una paleta propia; claro y oscuro.
+- **Tema**: del sistema (Material You, claro u oscuro), oscuro o negro puro (AMOLED), con color de acento a elegir.
+- **Fondo**: el del sistema, una imagen de tu galería, colores lisos o degradados, con oscurecimiento ajustable.
 - **Respaldo** de la configuración a un archivo, e idiomas español e inglés.
 
 Nada sale del teléfono: la app no usa internet ni envía datos.

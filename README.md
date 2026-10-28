@@ -18,19 +18,26 @@ that scrolls vertically with a magnifying effect toward the center, or in straig
 |:---:|:---:|
 | <img src="docs/screenshots/home-landscape.jpg" width="360" alt="Landscape home"> | <img src="docs/screenshots/apps-landscape.jpg" width="360" alt="Landscape app list"> |
 
+### In motion
+
+| Home: fisheye and shortcuts | App list: letters and fast scroll | Look: theme, accent and icons | Backgrounds |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/demo-home.gif" width="200" alt="Home screen in motion"> | <img src="docs/screenshots/demo-drawer.gif" width="200" alt="App list in motion"> | <img src="docs/screenshots/demo-settings.gif" width="200" alt="Look settings in motion"> | <img src="docs/screenshots/demo-backgrounds.gif" width="200" alt="Backgrounds"> |
+
 ## What it does
 
 - **Bubble home screen** in a honeycomb (default) or in rows; configurable columns, size, spacing, padding and
   framing, with five icon shapes.
 - **Favorites, folders and hidden apps**: reorder by dragging, group into folders, hide apps.
-- **Icons**: installed icon packs (ADW/Nova), a different icon per app or from the gallery, and per-app framing.
+- **Icons**: installed icon packs (ADW/Nova, applying the pack's background and mask to apps it does not cover), Android 13 monochrome themed icons, a different icon per app or from the gallery, and per-app framing.
 - **Widgets** right on the home screen, above or below the bubbles; in landscape they sit in their own column.
 - **App list** with search and recents, and in portrait split by letter with a fast-scroll index.
 - **Gestures** (optional): double tap to lock, swipe down for notifications, and swipe up from the bottom for recent
   apps. They use an accessibility service that only performs those actions.
 - **Notification badges** (optional): they only count how many notifications each app has; they never read the
   content.
-- **Theme**: Android dynamic colors (Material You) or a custom palette; light and dark.
+- **Theme**: system (Material You, light or dark), dark, or pure black (AMOLED), with a selectable accent color.
+- **Background**: the system one, an image from your gallery, solid colors or gradients, with adjustable dimming.
 - **Backup** of your settings to a file, and Spanish and English interface.
 
 Nothing leaves the phone: the app does not use the internet and does not send any data.
