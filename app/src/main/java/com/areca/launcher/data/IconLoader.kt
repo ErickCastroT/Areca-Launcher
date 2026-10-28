@@ -43,6 +43,9 @@ class IconLoader(
     // El mapa de bits es el lienzo completo del icono (108 dp): la zona visible estándar (72 dp) es el centro
     // y el resto es sangrado que se ve al reducir el encuadre.
     private val sizePx = (150 * context.resources.displayMetrics.density).toInt()
+    // Versión compacta para el listado de apps: se dibuja a 44 dp y el encuadre máximo es 200 %, así que basta un lienzo
+    // de 96 dp (la mitad de píxeles que el de 150 dp). Ahorra memoria y tiempo de dibujado, sobre todo con muchas apps.
+    private val compactPx = (COMPACT_DP * context.resources.displayMetrics.density).toInt()
 
     /** Colores de los iconos tematizados: [tile] es el fondo de la burbuja y [glyph] el dibujo. */
     class Tint(val tile: Int, val glyph: Int)
@@ -58,24 +61,25 @@ class IconLoader(
     /** Icono personalizado de una app (para las miniaturas dentro de una carpeta); lo conecta el ViewModel. */
     var overrideOf: (String) -> String? = { null }
 
-    fun cached(app: AppInfo, pack: String, override: String?): ImageBitmap? =
-        cache.get(cacheKey(app, pack, override))
+    fun cached(app: AppInfo, pack: String, override: String?, compact: Boolean = false): ImageBitmap? =
+        cache.get(cacheKey(app, pack, override, compact))
 
     /** Bloqueante: llamar desde un hilo de fondo. */
-    fun load(app: AppInfo, pack: String, override: String?): ImageBitmap {
-        val key = cacheKey(app, pack, override)
+    fun load(app: AppInfo, pack: String, override: String?, compact: Boolean = false): ImageBitmap {
+        val key = cacheKey(app, pack, override, compact)
         cache.get(key)?.let { return it }
-        if (app.isFolder) return renderFolder(app, pack).also { cache.put(key, it) }
+        val px = if (compact) compactPx else sizePx
+        if (app.isFolder) return renderFolder(app, pack, px, compact).also { cache.put(key, it) }
         val component = ComponentName(app.packageName, app.className)
         val styled = overrideDrawable(override) ?: (if (pack.isNotEmpty()) packs.iconFor(pack, component) else null)
-        if (styled != null) return render(styled).also { cache.put(key, it) }
+        if (styled != null) return render(styled, px).also { cache.put(key, it) }
         // Sin icono propio ni del paquete: el del sistema, recompuesto con el estilo del paquete o tematizado.
         val system = systemIcon(component)
         val packStyle = if (pack.isNotEmpty() && packFallback) packs.styleOf(pack) else null
         val image = when {
-            system != null && packStyle != null -> renderWithPackStyle(system, packStyle, pack, app.packageName)
-            system is AdaptiveIconDrawable && themed != null -> renderThemed(system, themed!!) ?: render(system)
-            else -> render(system)
+            system != null && packStyle != null -> renderWithPackStyle(system, packStyle, pack, app.packageName, px)
+            system is AdaptiveIconDrawable && themed != null -> renderThemed(system, themed!!, px) ?: render(system, px)
+            else -> render(system, px)
         }
         return image.also { cache.put(key, it) }
     }
@@ -84,7 +88,7 @@ class IconLoader(
     fun loadOverride(override: String): ImageBitmap {
         val key = "ov|$override"
         cache.get(key)?.let { return it }
-        return render(overrideDrawable(override)).also { cache.put(key, it) }
+        return render(overrideDrawable(override), sizePx).also { cache.put(key, it) }
     }
 
     private fun overrideDrawable(override: String?): Drawable? = when {
@@ -107,18 +111,18 @@ class IconLoader(
                 .firstOrNull { it.componentName == component })
             ?.getIcon(0)
 
-    private fun render(drawable: Drawable?): ImageBitmap {
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+    private fun render(drawable: Drawable?, px: Int): ImageBitmap {
+        val bitmap = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888)
         if (drawable != null) {
             val canvas = Canvas(bitmap)
             if (drawable is AdaptiveIconDrawable) {
                 // Las capas se dibujan sin la máscara del sistema, a lienzo completo: la forma la pone Areca.
-                drawable.background?.apply { setBounds(0, 0, sizePx, sizePx); draw(canvas) }
-                drawable.foreground?.apply { setBounds(0, 0, sizePx, sizePx); draw(canvas) }
+                drawable.background?.apply { setBounds(0, 0, px, px); draw(canvas) }
+                drawable.foreground?.apply { setBounds(0, 0, px, px); draw(canvas) }
             } else {
                 // Icono plano: ocupa la zona visible estándar (el centro, 2/3 del lienzo).
-                val inset = sizePx / 6
-                drawable.setBounds(inset, inset, sizePx - inset, sizePx - inset)
+                val inset = px / 6
+                drawable.setBounds(inset, inset, px - inset, px - inset)
                 drawable.draw(canvas)
             }
         }
@@ -129,14 +133,14 @@ class IconLoader(
      * Icono monocromo de Android 13 sobre el fondo [Tint.tile], con el dibujo en [Tint.glyph].
      * Devuelve null si el icono no trae capa monocroma (entonces se deja el icono original, como hace Android).
      */
-    private fun renderThemed(icon: AdaptiveIconDrawable, tint: Tint): ImageBitmap? {
+    private fun renderThemed(icon: AdaptiveIconDrawable, tint: Tint, px: Int): ImageBitmap? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
         val mono = icon.monochrome?.mutate() ?: return null
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         canvas.drawColor(tint.tile)
         mono.setTint(tint.glyph)
-        mono.setBounds(0, 0, sizePx, sizePx)
+        mono.setBounds(0, 0, px, px)
         mono.draw(canvas)
         return bitmap.asImageBitmap()
     }
@@ -146,8 +150,8 @@ class IconLoader(
      * el icono de la app reducido por el factor de escala y recortado con la máscara, y la capa superior.
      * Todo ocupa la zona visible estándar, igual que los iconos del propio paquete.
      */
-    private fun renderWithPackStyle(source: Drawable, style: IconPackManager.Style, pack: String, packageName: String): ImageBitmap {
-        val side = (sizePx * VIEWPORT).toInt()
+    private fun renderWithPackStyle(source: Drawable, style: IconPackManager.Style, pack: String, packageName: String, px: Int): ImageBitmap {
+        val side = (px * VIEWPORT).toInt()
         val tile = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(tile)
         fun draw(name: String?, target: Canvas = canvas) {
@@ -181,23 +185,24 @@ class IconLoader(
         canvas.drawBitmap(appLayer, 0f, 0f, null)
         draw(style.upon)
 
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-        val offset = (sizePx - side) / 2f
+        val bitmap = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888)
+        val offset = (px - side) / 2f
         Canvas(bitmap).drawBitmap(tile, offset, offset, Paint(Paint.FILTER_BITMAP_FLAG))
         return bitmap.asImageBitmap()
     }
 
     /** Fondo oscuro y hasta cuatro miniaturas de las apps de la carpeta, centradas según cuántas haya. */
-    private fun renderFolder(folder: AppInfo, pack: String): ImageBitmap {
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+    private fun renderFolder(folder: AppInfo, pack: String, px: Int, compact: Boolean): ImageBitmap {
+        val bitmap = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        val half = sizePx / 2f
+        val half = px / 2f
         canvas.scale(VIEWPORT, VIEWPORT, half, half) // la carpeta ocupa la zona visible estándar
         canvas.drawCircle(half, half, half, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = FOLDER_BACKGROUND })
         val paint = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
         val members = folder.folderMembers.take(4)
-        val margin = ((1 - VIEWPORT) / 2 * sizePx).toInt()
-        val memberSource = Rect(margin, margin, sizePx - margin, sizePx - margin) // zona visible de cada miniatura
+        // Las miniaturas se cargan en la misma versión (completa o compacta), así que miden px.
+        val margin = ((1 - VIEWPORT) / 2 * px).toInt()
+        val memberSource = Rect(margin, margin, px - margin, px - margin) // zona visible de cada miniatura
         // Filas de miniaturas: 1 → [1]; 2 → [2]; 3 → [2, 1]; 4 → [2, 2].
         val rows = when (members.size) {
             0 -> emptyList()
@@ -206,18 +211,18 @@ class IconLoader(
             3 -> listOf(2, 1)
             else -> listOf(2, 2)
         }
-        val cell = sizePx * (if (members.size == 1) 0.52f else 0.34f)
-        val gap = sizePx * 0.06f
+        val cell = px * (if (members.size == 1) 0.52f else 0.34f)
+        val gap = px * 0.06f
         val blockHeight = rows.size * cell + (rows.size - 1) * gap
         var index = 0
         rows.forEachIndexed { r, count ->
-            val top = (sizePx - blockHeight) / 2f + r * (cell + gap)
+            val top = (px - blockHeight) / 2f + r * (cell + gap)
             val rowWidth = count * cell + (count - 1) * gap
             repeat(count) { c ->
-                val left = (sizePx - rowWidth) / 2f + c * (cell + gap)
+                val left = (px - rowWidth) / 2f + c * (cell + gap)
                 val rect = RectF(left, top, left + cell, top + cell)
                 val member = members[index++]
-                val icon = load(member, pack, overrideOf(member.key)).asAndroidBitmap()
+                val icon = load(member, pack, overrideOf(member.key), compact).asAndroidBitmap()
                 canvas.save()
                 canvas.clipPath(Path().apply { addOval(rect, Path.Direction.CW) })
                 canvas.drawBitmap(icon, memberSource, rect, paint)
@@ -227,12 +232,13 @@ class IconLoader(
         return bitmap.asImageBitmap()
     }
 
-    private fun cacheKey(app: AppInfo, pack: String, override: String?): String {
+    private fun cacheKey(app: AppInfo, pack: String, override: String?, compact: Boolean = false): String {
         val members = if (app.isFolder) app.folderMembers.joinToString(",") { it.key + "=" + overrideOf(it.key).orEmpty() } else ""
-        return "$pack|${override.orEmpty()}|${app.key}|$members|$styleKey"
+        return "$pack|${override.orEmpty()}|${app.key}|$members|$styleKey|${if (compact) "c" else "f"}"
     }
 
     private companion object {
+        const val COMPACT_DP = 96
         const val CACHE_BYTES = 48 * 1024 * 1024
         const val VIEWPORT = 2f / 3f
         const val FOLDER_BACKGROUND = 0xE61B1D22.toInt()
