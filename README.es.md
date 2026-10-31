@@ -29,9 +29,9 @@ referencia botánica. Areca Launcher es una identidad propia que conserva, de fo
 
 ### En movimiento
 
-| Escritorio: lupa y atajos | Cajón: letras y desplazamiento rápido | Apariencia: tema, acento e iconos | Fondos |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/demo-home.gif" width="200" alt="Escritorio en movimiento"> | <img src="docs/screenshots/demo-drawer.gif" width="200" alt="Cajón de apps en movimiento"> | <img src="docs/screenshots/demo-settings.gif" width="200" alt="Apariencia en movimiento"> | <img src="docs/screenshots/demo-backgrounds.gif" width="200" alt="Fondos"> |
+| Escritorio: lupa y atajos | Cajón: letras y desplazamiento rápido | Cuadrícula: columnas, tamaño y nombres | Apariencia: tema, acento e iconos | Fondos |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/demo-home.gif" width="170" alt="Escritorio en movimiento"> | <img src="docs/screenshots/demo-drawer.gif" width="170" alt="Cajón de apps en movimiento"> | <img src="docs/screenshots/demo-grid.gif" width="170" alt="Cuadrícula de iconos en movimiento"> | <img src="docs/screenshots/demo-settings.gif" width="170" alt="Apariencia en movimiento"> | <img src="docs/screenshots/demo-backgrounds.gif" width="170" alt="Fondos"> |
 
 ## Qué hace
 

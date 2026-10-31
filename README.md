@@ -29,9 +29,9 @@ reference. Areca Launcher is an identity of its own that keeps, indirectly, the 
 
 ### In motion
 
-| Home: fisheye and shortcuts | App list: letters and fast scroll | Look: theme, accent and icons | Backgrounds |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/demo-home.gif" width="200" alt="Home screen in motion"> | <img src="docs/screenshots/demo-drawer.gif" width="200" alt="App list in motion"> | <img src="docs/screenshots/demo-settings.gif" width="200" alt="Look settings in motion"> | <img src="docs/screenshots/demo-backgrounds.gif" width="200" alt="Backgrounds"> |
+| Home: fisheye and shortcuts | App list: letters and fast scroll | Icon grid: columns, size and names | Look: theme, accent and icons | Backgrounds |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/demo-home.gif" width="170" alt="Home screen in motion"> | <img src="docs/screenshots/demo-drawer.gif" width="170" alt="App list in motion"> | <img src="docs/screenshots/demo-grid.gif" width="170" alt="Icon grid in motion"> | <img src="docs/screenshots/demo-settings.gif" width="170" alt="Look settings in motion"> | <img src="docs/screenshots/demo-backgrounds.gif" width="170" alt="Backgrounds"> |
 
 ## What it does
 
