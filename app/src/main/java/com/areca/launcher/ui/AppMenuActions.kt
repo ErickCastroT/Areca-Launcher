@@ -17,7 +17,7 @@ import com.areca.launcher.R
 import com.areca.launcher.data.AppInfo
 
 /** Lo que se puede hacer con una app desde su menú (escritorio y listado). */
-class AppMenuActions(
+data class AppMenuActions(
     val info: (AppInfo) -> Unit,
     val hide: (AppInfo) -> Unit,
     val editIcon: (AppInfo) -> Unit,

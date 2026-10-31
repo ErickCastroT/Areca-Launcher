@@ -62,6 +62,7 @@ class SettingsRepository(private val context: Context) {
         val ICON_OVERRIDES = stringSetPreferencesKey("icon_overrides")
         val HIDDEN = stringSetPreferencesKey("hidden")
         val FOLDERS = stringPreferencesKey("folders")
+        val DRAWER_FOLDERS = stringPreferencesKey("drawer_folders")
     }
 
     val settings: Flow<LauncherSettings> = context.dataStore.data.map { p ->
@@ -116,6 +117,7 @@ class SettingsRepository(private val context: Context) {
             favorites = p[Keys.FAVORITES]?.split('\n')?.filter { it.isNotEmpty() } ?: d.favorites,
             hidden = p[Keys.HIDDEN] ?: d.hidden,
             folders = FolderCodec.decode(p[Keys.FOLDERS]),
+            drawerFolders = FolderCodec.decode(p[Keys.DRAWER_FOLDERS]),
             iconOverrides = (p[Keys.ICON_OVERRIDES] ?: emptySet())
                 .mapNotNull { e -> e.split('\t', limit = 2).takeIf { it.size == 2 } }
                 .associate { it[0] to it[1] },
@@ -176,6 +178,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun setBottomSwipeRecents(v: Boolean) = edit { it[Keys.BOTTOM_SWIPE] = v }
     suspend fun setClockY(v: Float) = edit { it[Keys.CLOCK_Y] = v }
     /** Favoritas y carpetas se guardan juntas para que nunca queden desacordes. */
+    suspend fun setDrawerFolders(v: List<Folder>) = edit { it[Keys.DRAWER_FOLDERS] = FolderCodec.encode(v) }
     suspend fun setFavoritesAndFolders(favorites: List<String>, folders: List<Folder>) = edit {
         it[Keys.FAVORITES] = favorites.joinToString("\n")
         it[Keys.FOLDERS] = FolderCodec.encode(folders)
@@ -227,6 +230,7 @@ class SettingsRepository(private val context: Context) {
         p[Keys.FAVORITES] = v.favorites.joinToString("\n")
         p[Keys.HIDDEN] = v.hidden
         p[Keys.FOLDERS] = FolderCodec.encode(v.folders)
+        p[Keys.DRAWER_FOLDERS] = FolderCodec.encode(v.drawerFolders)
         p[Keys.ICON_OVERRIDES] = v.iconOverrides.map { (k, value) -> "$k\t$value" }.toSet()
     }
 }

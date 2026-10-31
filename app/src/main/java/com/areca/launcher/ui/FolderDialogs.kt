@@ -44,10 +44,18 @@ import com.areca.launcher.ui.theme.toShape
 /** Panel de una carpeta: sus apps a un toque; mantener pulsada una app permite sacarla. */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun FolderDialog(vm: HomeViewModel, folder: AppInfo) {
+fun FolderDialog(
+    vm: HomeViewModel,
+    folder: AppInfo,
+    onClose: () -> Unit = vm::closeFolder,
+    onRename: () -> Unit = { vm.startRenameFolder(folder.key) },
+    onTakeOut: (AppInfo) -> Unit = { vm.removeFromFolder(folder.key, it.key) },
+    /** Solo en las carpetas del escritorio: sacar la app también de las favoritas. */
+    onRemoveFromFavorites: ((AppInfo) -> Unit)? = { vm.removeFromFolder(folder.key, it.key, keepOnDesktop = false) },
+) {
     val settings by vm.settings.collectAsStateWithLifecycle()
     val shape = remember(settings.iconShape) { settings.iconShape.toShape() }
-    Dialog(onDismissRequest = vm::closeFolder) {
+    Dialog(onDismissRequest = onClose) {
         Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
             Column(Modifier.padding(24.dp)) {
                 Text(folder.label, style = MaterialTheme.typography.headlineSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -62,7 +70,7 @@ fun FolderDialog(vm: HomeViewModel, folder: AppInfo) {
                             Column(
                                 Modifier.width(88.dp)
                                     .combinedClickable(
-                                        onClick = { vm.closeFolder(); vm.launch(app) },
+                                        onClick = { onClose(); vm.launch(app) },
                                         onLongClick = { menu = true },
                                     )
                                     .padding(vertical = 8.dp, horizontal = 4.dp),
@@ -81,34 +89,60 @@ fun FolderDialog(vm: HomeViewModel, folder: AppInfo) {
                             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.folder_take_out)) },
-                                    onClick = { menu = false; vm.removeFromFolder(folder.key, app.key) },
+                                    onClick = { menu = false; onTakeOut(app) },
                                 )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.menu_remove)) },
-                                    onClick = { menu = false; vm.removeFromFolder(folder.key, app.key, keepOnDesktop = false) },
-                                )
+                                onRemoveFromFavorites?.let { remove ->
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.menu_remove)) },
+                                        onClick = { menu = false; remove(app) },
+                                    )
+                                }
                             }
                         }
                     }
                 }
                 Row(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = { vm.startRenameFolder(folder.key) }) { Text(stringResource(R.string.folder_rename)) }
-                    TextButton(onClick = vm::closeFolder) { Text(stringResource(R.string.settings_close)) }
+                    TextButton(onClick = onRename) { Text(stringResource(R.string.folder_rename)) }
+                    TextButton(onClick = onClose) { Text(stringResource(R.string.settings_close)) }
                 }
             }
         }
     }
 }
 
-/** Elegir una carpeta existente o crear una nueva para [app]. */
+/** Elegir una carpeta existente del escritorio o crear una nueva para [app]. */
 @Composable
 fun FolderChooserDialog(vm: HomeViewModel, app: AppInfo) {
     val settings by vm.settings.collectAsStateWithLifecycle()
-    var creating by remember { mutableStateOf(settings.folders.isEmpty()) }
+    FolderPicker(
+        app = app,
+        folders = settings.folders,
+        onPick = { vm.addToFolder(it.key, app) },
+        onCreate = { vm.createFolder(it, app) },
+        onDismiss = vm::dismissFolderChooser,
+    )
+}
+
+/** Lo mismo para las carpetas del listado de apps. */
+@Composable
+fun DrawerFolderChooserDialog(vm: HomeViewModel, app: AppInfo) {
+    val settings by vm.settings.collectAsStateWithLifecycle()
+    FolderPicker(
+        app = app,
+        folders = settings.drawerFolders,
+        onPick = { vm.addToDrawerFolder(it.key, app) },
+        onCreate = { vm.createDrawerFolder(it, app) },
+        onDismiss = vm::dismissDrawerFolderChooser,
+    )
+}
+
+@Composable
+private fun FolderPicker(app: AppInfo, folders: List<Folder>, onPick: (Folder) -> Unit, onCreate: (String) -> Unit, onDismiss: () -> Unit) {
+    var creating by remember { mutableStateOf(folders.isEmpty()) }
     var name by remember { mutableStateOf("") }
     val defaultName = stringResource(R.string.folder_default_name)
     AlertDialog(
-        onDismissRequest = vm::dismissFolderChooser,
+        onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         title = { Text(stringResource(R.string.folder_add_title, app.label), style = MaterialTheme.typography.titleLarge) },
         text = {
@@ -122,7 +156,7 @@ fun FolderChooserDialog(vm: HomeViewModel, app: AppInfo) {
                         singleLine = true,
                     )
                 } else {
-                    settings.folders.forEach { folder -> FolderRow(folder.name, folder.apps.size) { vm.addToFolder(folder.key, app); vm.dismissFolderChooser() } }
+                    folders.forEach { folder -> FolderRow(folder.name, folder.apps.size) { onPick(folder); onDismiss() } }
                     Text(
                         stringResource(R.string.folder_new),
                         style = MaterialTheme.typography.titleMedium,
@@ -133,11 +167,11 @@ fun FolderChooserDialog(vm: HomeViewModel, app: AppInfo) {
             }
         },
         confirmButton = {
-            if (creating) TextButton(onClick = { vm.createFolder(name.ifBlank { defaultName }, app); vm.dismissFolderChooser() }) {
+            if (creating) TextButton(onClick = { onCreate(name.ifBlank { defaultName }); onDismiss() }) {
                 Text(stringResource(R.string.folder_create))
             }
         },
-        dismissButton = { TextButton(onClick = vm::dismissFolderChooser) { Text(stringResource(R.string.cancel)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
 
@@ -157,9 +191,21 @@ private fun FolderRow(name: String, count: Int, onClick: () -> Unit) {
 fun RenameFolderDialog(vm: HomeViewModel, folderKey: String) {
     val settings by vm.settings.collectAsStateWithLifecycle()
     val current = settings.folders.firstOrNull { it.key == folderKey }?.name ?: return
-    var name by remember(folderKey) { mutableStateOf(current) }
+    NameDialog(current, onSave = { vm.renameFolder(folderKey, it) }, onDismiss = vm::dismissRenameFolder)
+}
+
+@Composable
+fun RenameDrawerFolderDialog(vm: HomeViewModel, folderKey: String) {
+    val settings by vm.settings.collectAsStateWithLifecycle()
+    val current = settings.drawerFolders.firstOrNull { it.key == folderKey }?.name ?: return
+    NameDialog(current, onSave = { vm.renameDrawerFolder(folderKey, it) }, onDismiss = vm::dismissRenameDrawerFolder)
+}
+
+@Composable
+private fun NameDialog(current: String, onSave: (String) -> Unit, onDismiss: () -> Unit) {
+    var name by remember(current) { mutableStateOf(current) }
     AlertDialog(
-        onDismissRequest = vm::dismissRenameFolder,
+        onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         title = { Text(stringResource(R.string.folder_rename), style = MaterialTheme.typography.titleLarge) },
         text = {
@@ -171,9 +217,9 @@ fun RenameFolderDialog(vm: HomeViewModel, folderKey: String) {
             )
         },
         confirmButton = {
-            TextButton(onClick = { vm.renameFolder(folderKey, name); vm.dismissRenameFolder() }) { Text(stringResource(R.string.folder_save)) }
+            TextButton(onClick = { onSave(name); onDismiss() }) { Text(stringResource(R.string.folder_save)) }
         },
-        dismissButton = { TextButton(onClick = vm::dismissRenameFolder) { Text(stringResource(R.string.cancel)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
 

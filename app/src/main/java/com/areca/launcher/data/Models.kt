@@ -140,6 +140,8 @@ data class LauncherSettings(
     val hidden: Set<String> = emptySet(),
     /** Carpetas de burbujas; cada una ocupa un lugar en [favorites] con su clave "folder:<id>". */
     val folders: List<Folder> = emptyList(),
+    /** Carpetas del listado de apps; no tienen que ver con las del escritorio. */
+    val drawerFolders: List<Folder> = emptyList(),
     /** Icono personalizado por app: "pack:<paquete>:<drawable>" o "file:<archivo>". */
     val iconOverrides: Map<String, String> = emptyMap(),
 )

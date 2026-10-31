@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Arrangement
 import java.text.Normalizer
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -92,9 +93,13 @@ fun DrawerPage(vm: HomeViewModel, active: Boolean) {
     var query by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     LaunchedEffect(active) { if (!active) focusManager.clearFocus() }
-    val filtered = remember(apps, query) {
-        if (query.isBlank()) apps else apps.filter { it.label.contains(query, ignoreCase = true) }
+    val folders by vm.drawerFolders.collectAsStateWithLifecycle()
+    // Las apps de una carpeta salen del listado general; al buscar se encuentran todas, también las de carpetas.
+    val inFolders = remember(settings.drawerFolders) { settings.drawerFolders.flatMapTo(HashSet()) { it.apps } }
+    val filtered = remember(apps, query, inFolders) {
+        if (query.isBlank()) apps.filter { it.key !in inFolders } else apps.filter { it.label.contains(query, ignoreCase = true) }
     }
+    val shownFolders = if (query.isBlank()) folders else emptyList()
 
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.TopCenter) {
         // En pantallas anchas (horizontal, tablet) las apps se reparten en varias columnas para aprovechar el ancho.
@@ -112,6 +117,7 @@ fun DrawerPage(vm: HomeViewModel, active: Boolean) {
                     showRecents = !compact && recents.isNotEmpty() && query.isBlank(),
                     showIndex = settings.drawerLetterIndex && query.isBlank(),
                     grouped = settings.drawerGroupByLetter,
+                    folders = shownFolders,
                     recentsContent = { RecentsRow(recents, settings, vm) },
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                 )
@@ -128,11 +134,13 @@ fun DrawerPage(vm: HomeViewModel, active: Boolean) {
                             }
                         }
                     }
+                    items(shownFolders, key = { it.key }) { folder -> AppListItem(folder, settings, vm, horizontalPadding = 12.dp, verticalPadding = if (compact) 2.dp else 8.dp) }
                     items(filtered, key = { it.key }) { app -> AppListItem(app, settings, vm, horizontalPadding = 12.dp, verticalPadding = if (compact) 2.dp else 8.dp) }
                 }
             } else {
                 LetteredList(
                     apps = filtered,
+                    folders = shownFolders,
                     showRecents = recents.isNotEmpty() && query.isBlank(),
                     showIndex = query.isBlank(),
                     recentsContent = { RecentsRow(recents, settings, vm) },
@@ -201,6 +209,7 @@ private fun sortKey(label: String): String = Normalizer.normalize(label.trim(), 
 @Composable
 private fun LetteredList(
     apps: List<AppInfo>,
+    folders: List<AppInfo>,
     showRecents: Boolean,
     showIndex: Boolean,
     recentsContent: @Composable () -> Unit,
@@ -214,8 +223,8 @@ private fun LetteredList(
     val grouped = remember(apps) { apps.sortedBy { sortKey(it.label) }.groupBy { letterOf(it.label) } }
     val letters = remember(grouped) { grouped.keys.toList() }
     // Posición de cada encabezado en el listado (los recientes, si están, ocupan la primera).
-    val headerIndex = remember(grouped, showRecents) {
-        var i = if (showRecents) 1 else 0
+    val headerIndex = remember(grouped, showRecents, folders.size) {
+        var i = (if (showRecents) 1 else 0) + folders.size
         letters.associateWith { letter -> i.also { i += 1 + grouped.getValue(letter).size } }
     }
     val current by remember(headerIndex) {
@@ -238,6 +247,7 @@ private fun LetteredList(
     Box(modifier) {
         LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(end = if (showIndex) INDEX_WIDTH_DP.dp else 0.dp)) {
             if (showRecents) item(key = "recents") { recentsContent() }
+            items(folders, key = { it.key }) { folder -> item(folder) }
             letters.forEach { letter ->
                 stickyHeader(key = "header-$letter") {
                     Text(
@@ -341,6 +351,7 @@ private fun LetteredGrid(
     showRecents: Boolean,
     showIndex: Boolean,
     grouped: Boolean,
+    folders: List<AppInfo>,
     recentsContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -351,8 +362,9 @@ private fun LetteredGrid(
     val letters = remember(byLetter) { byLetter.keys.toList() }
     // Posición de la letra en la cuadrícula: con encabezados cada uno ocupa un elemento; sin ellos, la letra
     // apunta a su primera app. Los recientes, si están, ocupan el primero.
-    val headerIndex = remember(byLetter, showRecents, grouped) {
-        var i = if (showRecents) 1 else 0
+    val headerIndex = remember(byLetter, showRecents, grouped, folders.size) {
+        // Las carpetas van fijas arriba y, si hay, un separador que cierra su fila.
+        var i = (if (showRecents) 1 else 0) + folders.size + (if (folders.isNotEmpty()) 1 else 0)
         letters.associateWith { letter -> i.also { i += (if (grouped) 1 else 0) + byLetter.getValue(letter).size } }
     }
     val current by remember(headerIndex) {
@@ -383,6 +395,8 @@ private fun LetteredGrid(
             contentPadding = PaddingValues(start = GRID_SIDE_PADDING_DP.dp, end = GRID_SIDE_PADDING_DP.dp + indexWidth),
         ) {
             if (showRecents) item(key = "recents", span = { GridItemSpan(maxLineSpan) }) { recentsContent() }
+            items(folders, key = { it.key }) { folder -> AppGridItem(folder, settings, vm, shape, iconSize) }
+            if (folders.isNotEmpty()) item(key = "folders-end", span = { GridItemSpan(maxLineSpan) }) { Spacer(Modifier.height(8.dp)) }
             letters.forEach { letter ->
                 if (grouped) {
                     item(key = "header-$letter", span = { GridItemSpan(maxLineSpan) }) {
@@ -446,7 +460,7 @@ private fun AppGridItem(app: AppInfo, settings: LauncherSettings, vm: HomeViewMo
                 )
             }
         }
-        AppContextMenu(menu, { menu = false }, app, vm.menuActions, isFavorite = favorite, onToggleFavorite = { vm.toggleFavorite(app) })
+        AppContextMenu(menu, { menu = false }, app, vm.drawerMenuActions, isFavorite = favorite, onToggleFavorite = { vm.toggleFavorite(app) })
     }
 }
 
@@ -474,7 +488,7 @@ private fun AppListItem(app: AppInfo, settings: LauncherSettings, vm: HomeViewMo
                 modifier = Modifier.padding(start = 16.dp),
             )
         }
-        AppContextMenu(menu, { menu = false }, app, vm.menuActions, isFavorite = favorite, onToggleFavorite = { vm.toggleFavorite(app) })
+        AppContextMenu(menu, { menu = false }, app, vm.drawerMenuActions, isFavorite = favorite, onToggleFavorite = { vm.toggleFavorite(app) })
     }
 }
 

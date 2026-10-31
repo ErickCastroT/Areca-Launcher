@@ -40,7 +40,7 @@ reference. Areca Launcher is an identity of its own that keeps, indirectly, the 
 - **Favorites, folders and hidden apps**: reorder by dragging, group into folders, hide apps.
 - **Icons**: installed icon packs (ADW/Nova, applying the pack's background and mask to apps it does not cover), Android 13 monochrome themed icons, a different icon per app or from the gallery, and per-app framing.
 - **Widgets** right on the home screen, above or below the bubbles; in landscape they sit in their own column.
-- **App list** with search and recents, as a list or as an icon grid (columns, icon size, names, grouping by letter and a fast-scroll index are all adjustable).
+- **App list** with search and recents, as a list or as an icon grid (columns, icon size, names, grouping by letter and a fast-scroll index are all adjustable), with folders of its own to keep it tidy.
 - **Gestures** (optional): double tap to lock, swipe down for notifications, and swipe up from the bottom for recent
   apps. They use an accessibility service that only performs those actions.
 - **Notification badges** (optional): they only count how many notifications each app has; they never read the

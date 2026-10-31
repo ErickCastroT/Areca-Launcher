@@ -52,6 +52,9 @@ fun ArecaRoot(vm: HomeViewModel) {
     val openFolder by vm.openFolder.collectAsStateWithLifecycle()
     val folderChooser by vm.folderChooserApp.collectAsStateWithLifecycle()
     val renameFolder by vm.renameFolderKey.collectAsStateWithLifecycle()
+    val openDrawerFolder by vm.openDrawerFolder.collectAsStateWithLifecycle()
+    val drawerFolderChooser by vm.drawerFolderChooserApp.collectAsStateWithLifecycle()
+    val renameDrawerFolder by vm.renameDrawerFolderKey.collectAsStateWithLifecycle()
 
     BackHandler(enabled = screen != Screen.HOME) { if (screen == Screen.ABOUT) vm.open(Screen.SETTINGS) else vm.goHome() }
 
@@ -123,4 +126,15 @@ fun ArecaRoot(vm: HomeViewModel) {
     openFolder?.let { FolderDialog(vm, it) }
     folderChooser?.let { FolderChooserDialog(vm, it) }
     renameFolder?.let { RenameFolderDialog(vm, it) }
+    openDrawerFolder?.let { folder ->
+        FolderDialog(
+            vm, folder,
+            onClose = vm::closeDrawerFolder,
+            onRename = { vm.startRenameDrawerFolder(folder.key) },
+            onTakeOut = { vm.removeFromDrawerFolder(folder.key, it.key) },
+            onRemoveFromFavorites = null,
+        )
+    }
+    drawerFolderChooser?.let { DrawerFolderChooserDialog(vm, it) }
+    renameDrawerFolder?.let { RenameDrawerFolderDialog(vm, it) }
 }

@@ -82,6 +82,63 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    // --- Carpetas del listado de apps (independientes de las del escritorio) ---
+    /** Carpetas del listado, con sus apps visibles; las que se quedan sin apps visibles no se muestran. */
+    val drawerFolders: StateFlow<List<AppInfo>> = combine(allApps, settings) { apps, s ->
+        val byKey = apps.associateBy { it.key }
+        s.drawerFolders.mapNotNull { f ->
+            val members = f.apps.mapNotNull { byKey[it] }.filter { it.key !in s.hidden }
+            if (members.isEmpty()) null
+            else AppInfo(key = f.key, label = f.name, packageName = FOLDER_PACKAGE, className = f.id, folderMembers = members)
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    private val _openDrawerFolderKey = MutableStateFlow<String?>(null)
+    val openDrawerFolder: StateFlow<AppInfo?> = combine(drawerFolders, _openDrawerFolderKey) { folders, key ->
+        key?.let { k -> folders.firstOrNull { it.key == k } }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    fun closeDrawerFolder() { _openDrawerFolderKey.value = null }
+
+    private val _drawerFolderChooserApp = MutableStateFlow<AppInfo?>(null)
+    val drawerFolderChooserApp: StateFlow<AppInfo?> = _drawerFolderChooserApp.asStateFlow()
+    fun chooseDrawerFolderFor(app: AppInfo) { _drawerFolderChooserApp.value = app }
+    fun dismissDrawerFolderChooser() { _drawerFolderChooserApp.value = null }
+
+    private val _renameDrawerFolderKey = MutableStateFlow<String?>(null)
+    val renameDrawerFolderKey: StateFlow<String?> = _renameDrawerFolderKey.asStateFlow()
+    fun startRenameDrawerFolder(folderKey: String) { _renameDrawerFolderKey.value = folderKey }
+    fun dismissRenameDrawerFolder() { _renameDrawerFolderKey.value = null }
+
+    /** Guarda las carpetas del listado sin las que se quedaron vacías. */
+    private suspend fun saveDrawerFolders(folders: List<Folder>) = settingsRepo.setDrawerFolders(folders.filter { it.apps.isNotEmpty() })
+
+    fun createDrawerFolder(name: String, first: AppInfo) = update {
+        val s = settings.value
+        val folder = Folder(UUID.randomUUID().toString(), name.trim().ifEmpty { DEFAULT_FOLDER_NAME }, listOf(first.key))
+        saveDrawerFolders(s.drawerFolders.map { it.copy(apps = it.apps - first.key) } + folder)
+    }
+
+    /** Una app está en una sola carpeta del listado: al meterla en otra, sale de la anterior. */
+    fun addToDrawerFolder(folderKey: String, app: AppInfo) = update {
+        saveDrawerFolders(settings.value.drawerFolders.map { f ->
+            if (f.key == folderKey) f.copy(apps = (f.apps - app.key) + app.key) else f.copy(apps = f.apps - app.key)
+        })
+    }
+
+    fun removeFromDrawerFolder(folderKey: String, appKey: String) = update {
+        saveDrawerFolders(settings.value.drawerFolders.map { if (it.key == folderKey) it.copy(apps = it.apps - appKey) else it })
+    }
+
+    fun renameDrawerFolder(folderKey: String, name: String) = update {
+        settingsRepo.setDrawerFolders(settings.value.drawerFolders.map { if (it.key == folderKey) it.copy(name = name.trim().ifEmpty { it.name }) else it })
+    }
+
+    /** Deshace la carpeta del listado: sus apps vuelven al listado general. */
+    fun dissolveDrawerFolder(folderKey: String) = update {
+        saveDrawerFolders(settings.value.drawerFolders.filter { it.key != folderKey })
+        if (_openDrawerFolderKey.value == folderKey) closeDrawerFolder()
+    }
+
     // --- Carpetas ---
     private val _openFolderKey = MutableStateFlow<String?>(null)
     /** La carpeta abierta (su panel con las apps), o null. */
@@ -414,7 +471,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     fun launch(app: AppInfo) {
-        if (app.isFolder) { _openFolderKey.value = app.key; return }
+        if (app.isFolder) {
+            if (settings.value.drawerFolders.any { it.key == app.key }) _openDrawerFolderKey.value = app.key else _openFolderKey.value = app.key
+            return
+        }
         // Areca misma no cuenta como reciente.
         if (app.packageName != this.app.packageName) this.app.usageStore.record(app.key)
         appRepo.launch(app)
@@ -432,6 +492,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         addToFolder = ::chooseFolderFor,
         renameFolder = { startRenameFolder(it.key) },
         dissolveFolder = { dissolveFolder(it.key) },
+    )
+    /** Las mismas acciones, pero con las carpetas del listado en lugar de las del escritorio. */
+    val drawerMenuActions = menuActions.copy(
+        addToFolder = ::chooseDrawerFolderFor,
+        renameFolder = { startRenameDrawerFolder(it.key) },
+        dissolveFolder = { dissolveDrawerFolder(it.key) },
     )
     fun openAppInfo(app: AppInfo) = appRepo.openAppInfo(app)
     fun iconPacks(): List<IconPackInfo> = this.app.iconPackManager.installedPacks()

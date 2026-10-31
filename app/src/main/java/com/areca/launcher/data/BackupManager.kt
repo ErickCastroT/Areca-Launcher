@@ -60,6 +60,7 @@ object BackupManager {
             put("favorites", JSONArray(s.favorites))
             put("hidden", JSONArray(s.hidden.toList()))
             put("folders", FolderCodec.encode(s.folders))
+            put("drawerFolders", FolderCodec.encode(s.drawerFolders))
             put("iconOverrides", JSONObject(s.iconOverrides))
             put("iconFiles", icons)
             put("language", language)
@@ -119,6 +120,7 @@ object BackupManager {
                 favorites = strings("favorites"),
                 hidden = strings("hidden").toSet(),
                 folders = FolderCodec.decode(o.optString("folders", null)),
+                drawerFolders = FolderCodec.decode(o.optString("drawerFolders", null)),
                 iconOverrides = overrides,
             ),
             language = o.optString("language", LanguageStore.SYSTEM),
