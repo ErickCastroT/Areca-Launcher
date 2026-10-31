@@ -13,6 +13,9 @@ La inspiración principal es el launcher de Palm, que se vio en un teléfono min
 algunas alternativas a ese diseño, pero ninguna está disponible hoy. Areca es mi intento de revivir ese concepto tan
 peculiar.
 
+El nombre es un juego de palabras: *palm* también es palmera, y Areca es una palmera de verdad (género Areca), una
+referencia botánica. Areca Launcher es una identidad propia que conserva, de forma indirecta, el concepto original de Palm.
+
 ## Capturas
 
 | Escritorio | Listado de apps | Ajustes |

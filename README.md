@@ -14,6 +14,9 @@ The main inspiration is the Palm launcher, which showed up on a miniature phone 
 design existed over the years, but none of them is available today. Areca is my attempt to bring that peculiar concept
 back to life.
 
+The name is wordplay: *palm* also means palm tree, and Areca is a real palm tree (genus Areca), a botanical
+reference. Areca Launcher is an identity of its own that keeps, indirectly, the original Palm concept.
+
 ## Screenshots
 
 | Home screen | App list | Settings |
