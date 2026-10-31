@@ -38,6 +38,12 @@ object BackupManager {
             put("wallpaperDim", s.wallpaperDim)
             put("accent", s.accent.name)
             put("themedIcons", s.themedIcons)
+            put("drawerStyle", s.drawerStyle.name)
+            put("drawerColumns", s.drawerColumns)
+            put("drawerIconSize", s.drawerIconSize)
+            put("drawerShowLabels", s.drawerShowLabels)
+            put("drawerLetterIndex", s.drawerLetterIndex)
+            put("drawerGroupByLetter", s.drawerGroupByLetter)
             put("tiltEnabled", s.tiltEnabled)
             put("tiltStrength", s.tiltStrength)
             put("packFallback", s.packFallback)
@@ -90,6 +96,12 @@ object BackupManager {
                 wallpaperDim = o.optInt("wallpaperDim", d.wallpaperDim).coerceIn(0, MAX_WALLPAPER_DIM),
                 accent = enumOr(o.optString("accent"), d.accent),
                 themedIcons = o.optBoolean("themedIcons", d.themedIcons),
+                drawerStyle = runCatching { DrawerStyle.valueOf(o.optString("drawerStyle")) }.getOrDefault(d.drawerStyle),
+                drawerColumns = o.optInt("drawerColumns", d.drawerColumns).coerceIn(MIN_DRAWER_COLUMNS, MAX_DRAWER_COLUMNS),
+                drawerIconSize = o.optInt("drawerIconSize", d.drawerIconSize).coerceIn(MIN_DRAWER_ICON_SIZE, MAX_DRAWER_ICON_SIZE),
+                drawerShowLabels = o.optBoolean("drawerShowLabels", d.drawerShowLabels),
+                drawerLetterIndex = o.optBoolean("drawerLetterIndex", d.drawerLetterIndex),
+                drawerGroupByLetter = o.optBoolean("drawerGroupByLetter", d.drawerGroupByLetter),
                 tiltEnabled = o.optBoolean("tiltEnabled", d.tiltEnabled),
                 tiltStrength = o.optInt("tiltStrength", d.tiltStrength).coerceIn(MIN_TILT_STRENGTH, 100),
                 packFallback = o.optBoolean("packFallback", d.packFallback),

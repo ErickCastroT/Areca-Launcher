@@ -14,6 +14,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.ui.text.style.TextAlign
+import com.areca.launcher.data.DrawerStyle
 import androidx.compose.foundation.layout.Arrangement
 import java.text.Normalizer
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -50,6 +53,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.DropdownMenuItem
@@ -100,7 +104,18 @@ fun DrawerPage(vm: HomeViewModel, active: Boolean) {
             Modifier.fillMaxHeight().then(if (wide) Modifier.fillMaxWidth() else Modifier.widthIn(max = 640.dp))
                 .statusBarsPadding().navigationBarsPadding().displayCutoutPadding().imePadding(),
         ) {
-            if (wide) {
+            if (settings.drawerStyle == DrawerStyle.GRID) {
+                LetteredGrid(
+                    apps = filtered,
+                    settings = settings,
+                    vm = vm,
+                    showRecents = !compact && recents.isNotEmpty() && query.isBlank(),
+                    showIndex = settings.drawerLetterIndex && query.isBlank(),
+                    grouped = settings.drawerGroupByLetter,
+                    recentsContent = { RecentsRow(recents, settings, vm) },
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                )
+            } else if (wide) {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive((if (compact) COMPACT_COLUMN_DP else DRAWER_COLUMN_DP).dp),
                     modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -314,6 +329,129 @@ private const val DRAWER_COLUMN_DP = 260
 private const val COMPACT_HEIGHT_DP = 480
 private const val COMPACT_COLUMN_DP = 220
 
+/**
+ * Cuadrícula de iconos agrupada por letra: los encabezados ocupan una fila completa y, a la derecha, la misma barra
+ * de letras del listado. El icono se encoge si no cabe en la columna.
+ */
+@Composable
+private fun LetteredGrid(
+    apps: List<AppInfo>,
+    settings: LauncherSettings,
+    vm: HomeViewModel,
+    showRecents: Boolean,
+    showIndex: Boolean,
+    grouped: Boolean,
+    recentsContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val gridState = rememberLazyGridState()
+    val scope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+    val byLetter = remember(apps) { apps.sortedBy { sortKey(it.label) }.groupBy { letterOf(it.label) } }
+    val letters = remember(byLetter) { byLetter.keys.toList() }
+    // Posición de la letra en la cuadrícula: con encabezados cada uno ocupa un elemento; sin ellos, la letra
+    // apunta a su primera app. Los recientes, si están, ocupan el primero.
+    val headerIndex = remember(byLetter, showRecents, grouped) {
+        var i = if (showRecents) 1 else 0
+        letters.associateWith { letter -> i.also { i += (if (grouped) 1 else 0) + byLetter.getValue(letter).size } }
+    }
+    val current by remember(headerIndex) {
+        derivedStateOf {
+            val first = gridState.firstVisibleItemIndex
+            letters.lastOrNull { headerIndex.getValue(it) <= first } ?: letters.firstOrNull()
+        }
+    }
+    var touched by remember { mutableStateOf<String?>(null) }
+    val density = LocalDensity.current
+    val indexTop by remember(showRecents) {
+        derivedStateOf {
+            if (!showRecents) 0
+            else gridState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == "recents" }
+                ?.let { (it.offset.y + it.size.height).coerceAtLeast(0) } ?: 0
+        }
+    }
+    val shape = remember(settings.iconShape) { settings.iconShape.toShape() }
+
+    BoxWithConstraints(modifier) {
+        val indexWidth = if (showIndex) INDEX_WIDTH_DP.dp else 0.dp
+        val cellWidth = (maxWidth - indexWidth - GRID_SIDE_PADDING_DP.dp * 2) / settings.drawerColumns
+        val iconSize = minOf(settings.drawerIconSize.dp, cellWidth - 8.dp).coerceAtLeast(32.dp)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(settings.drawerColumns),
+            state = gridState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = GRID_SIDE_PADDING_DP.dp, end = GRID_SIDE_PADDING_DP.dp + indexWidth),
+        ) {
+            if (showRecents) item(key = "recents", span = { GridItemSpan(maxLineSpan) }) { recentsContent() }
+            letters.forEach { letter ->
+                if (grouped) {
+                    item(key = "header-$letter", span = { GridItemSpan(maxLineSpan) }) {
+                        Text(
+                            letter,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+                        )
+                    }
+                }
+                items(byLetter.getValue(letter), key = { it.key }) { app -> AppGridItem(app, settings, vm, shape, iconSize) }
+            }
+        }
+        if (showIndex && letters.size > 1) {
+            LetterIndex(
+                letters = letters,
+                current = current,
+                onSelect = { letter ->
+                    if (letter != touched) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    touched = letter
+                    scope.launch { gridState.scrollToItem(headerIndex.getValue(letter)) }
+                },
+                onRelease = { touched = null },
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = with(density) { indexTop.toDp() }),
+            )
+            touched?.let { letter ->
+                Box(
+                    Modifier.align(Alignment.Center).size(72.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(letter, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimary)
+                }
+            }
+        }
+    }
+}
+
+/** Una app de la cuadrícula: icono y, si se quiere, su nombre debajo; mantener pulsado abre su menú. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun AppGridItem(app: AppInfo, settings: LauncherSettings, vm: HomeViewModel, shape: androidx.compose.ui.graphics.Shape, iconSize: androidx.compose.ui.unit.Dp) {
+    var menu by remember { mutableStateOf(false) }
+    val favorite = settings.isFavorite(app.key)
+    Box {
+        Column(
+            Modifier.fillMaxWidth()
+                .combinedClickable(onClick = { vm.launch(app) }, onLongClick = { menu = true })
+                .padding(vertical = 8.dp, horizontal = 2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            AppIcon(app, settings.iconPack, settings.iconOverrides[app.key], shape, settings.iconPaddingPercent, vm, settings.zoomFor(app.key), size = iconSize)
+            if (settings.drawerShowLabels) {
+                Text(
+                    app.label,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+        }
+        AppContextMenu(menu, { menu = false }, app, vm.menuActions, isFavorite = favorite, onToggleFavorite = { vm.toggleFavorite(app) })
+    }
+}
+
+private const val GRID_SIDE_PADDING_DP = 8
+
 /** Una app del listado: icono y nombre; toque abre, mantener pulsado abre su menú. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -359,13 +497,7 @@ private fun RecentsRow(apps: List<AppInfo>, settings: LauncherSettings, vm: Home
         }
         return
     }
-    Column(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp)) {
-        Text(
-            stringResource(R.string.recents_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-        )
+    Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
             apps.forEach { app ->
                 Column(
@@ -385,5 +517,7 @@ private fun RecentsRow(apps: List<AppInfo>, settings: LauncherSettings, vm: Home
             // Mantiene el ancho de cada celda cuando hay menos de cinco.
             repeat(HomeViewModel.RECENTS_COUNT - apps.size) { Spacer(Modifier.weight(1f)) }
         }
+        // Separa los recientes del listado completo.
+        HorizontalDivider(Modifier.padding(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
     }
 }

@@ -30,6 +30,12 @@ class SettingsRepository(private val context: Context) {
         val CUSTOM_WALLPAPER = stringPreferencesKey("custom_wallpaper")
         val WALLPAPER_DIM = intPreferencesKey("wallpaper_dim")
         val ACCENT = stringPreferencesKey("accent")
+        val DRAWER_STYLE = stringPreferencesKey("drawer_style")
+        val DRAWER_COLUMNS = intPreferencesKey("drawer_columns")
+        val DRAWER_ICON_SIZE = intPreferencesKey("drawer_icon_size")
+        val DRAWER_LABELS = booleanPreferencesKey("drawer_labels")
+        val DRAWER_INDEX = booleanPreferencesKey("drawer_index")
+        val DRAWER_GROUPED = booleanPreferencesKey("drawer_grouped")
         val TILT_ENABLED = booleanPreferencesKey("tilt_enabled")
         val TILT_STRENGTH = intPreferencesKey("tilt_strength")
         val THEMED_ICONS = booleanPreferencesKey("themed_icons")
@@ -71,6 +77,12 @@ class SettingsRepository(private val context: Context) {
             customWallpaper = p[Keys.CUSTOM_WALLPAPER] ?: d.customWallpaper,
             wallpaperDim = p[Keys.WALLPAPER_DIM] ?: d.wallpaperDim,
             accent = p[Keys.ACCENT]?.let { runCatching { AccentColor.valueOf(it) }.getOrNull() } ?: d.accent,
+            drawerStyle = p[Keys.DRAWER_STYLE]?.let { runCatching { DrawerStyle.valueOf(it) }.getOrNull() } ?: d.drawerStyle,
+            drawerColumns = (p[Keys.DRAWER_COLUMNS] ?: d.drawerColumns).coerceIn(MIN_DRAWER_COLUMNS, MAX_DRAWER_COLUMNS),
+            drawerIconSize = (p[Keys.DRAWER_ICON_SIZE] ?: d.drawerIconSize).coerceIn(MIN_DRAWER_ICON_SIZE, MAX_DRAWER_ICON_SIZE),
+            drawerShowLabels = p[Keys.DRAWER_LABELS] ?: d.drawerShowLabels,
+            drawerLetterIndex = p[Keys.DRAWER_INDEX] ?: d.drawerLetterIndex,
+            drawerGroupByLetter = p[Keys.DRAWER_GROUPED] ?: d.drawerGroupByLetter,
             tiltEnabled = p[Keys.TILT_ENABLED] ?: d.tiltEnabled,
             tiltStrength = p[Keys.TILT_STRENGTH] ?: d.tiltStrength,
             themedIcons = p[Keys.THEMED_ICONS] ?: d.themedIcons,
@@ -124,6 +136,12 @@ class SettingsRepository(private val context: Context) {
     suspend fun setCustomWallpaper(file: String) = edit { it[Keys.CUSTOM_WALLPAPER] = file }
     suspend fun setWallpaperDim(v: Int) = edit { it[Keys.WALLPAPER_DIM] = v }
     suspend fun setAccent(v: AccentColor) = edit { it[Keys.ACCENT] = v.name }
+    suspend fun setDrawerStyle(v: DrawerStyle) = edit { it[Keys.DRAWER_STYLE] = v.name }
+    suspend fun setDrawerColumns(v: Int) = edit { it[Keys.DRAWER_COLUMNS] = v }
+    suspend fun setDrawerIconSize(v: Int) = edit { it[Keys.DRAWER_ICON_SIZE] = v }
+    suspend fun setDrawerShowLabels(v: Boolean) = edit { it[Keys.DRAWER_LABELS] = v }
+    suspend fun setDrawerLetterIndex(v: Boolean) = edit { it[Keys.DRAWER_INDEX] = v }
+    suspend fun setDrawerGroupByLetter(v: Boolean) = edit { it[Keys.DRAWER_GROUPED] = v }
     suspend fun setTiltEnabled(v: Boolean) = edit { it[Keys.TILT_ENABLED] = v }
     suspend fun setTiltStrength(v: Int) = edit { it[Keys.TILT_STRENGTH] = v }
     suspend fun setThemedIcons(v: Boolean) = edit { it[Keys.THEMED_ICONS] = v }
@@ -171,6 +189,12 @@ class SettingsRepository(private val context: Context) {
         p[Keys.WALLPAPER_DIM] = v.wallpaperDim
         p[Keys.ACCENT] = v.accent.name
         p[Keys.THEMED_ICONS] = v.themedIcons
+        p[Keys.DRAWER_STYLE] = v.drawerStyle.name
+        p[Keys.DRAWER_COLUMNS] = v.drawerColumns
+        p[Keys.DRAWER_ICON_SIZE] = v.drawerIconSize
+        p[Keys.DRAWER_LABELS] = v.drawerShowLabels
+        p[Keys.DRAWER_INDEX] = v.drawerLetterIndex
+        p[Keys.DRAWER_GROUPED] = v.drawerGroupByLetter
         p[Keys.TILT_ENABLED] = v.tiltEnabled
         p[Keys.TILT_STRENGTH] = v.tiltStrength
         p[Keys.PACK_FALLBACK] = v.packFallback

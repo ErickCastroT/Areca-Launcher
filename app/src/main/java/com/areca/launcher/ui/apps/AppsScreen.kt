@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.areca.launcher.R
@@ -108,13 +109,15 @@ fun AppsScreen(vm: HomeViewModel) {
 }
 
 @Composable
-internal fun AppIcon(app: AppInfo, iconPack: String, iconOverride: String?, shape: Shape, paddingPercent: Int, vm: HomeViewModel, zoomPercent: Int = DEFAULT_ICON_ZOOM, contentDescription: String? = null) {
-    val icon by produceState<ImageBitmap?>(vm.iconLoader.cached(app, iconPack, iconOverride, compact = true), app, iconPack, iconOverride, vm.iconLoader.styleKey) {
-        value = withContext(Dispatchers.IO) { vm.iconLoader.load(app, iconPack, iconOverride, compact = true) }
+internal fun AppIcon(app: AppInfo, iconPack: String, iconOverride: String?, shape: Shape, paddingPercent: Int, vm: HomeViewModel, zoomPercent: Int = DEFAULT_ICON_ZOOM, contentDescription: String? = null, size: Dp = 44.dp) {
+    // El lienzo compacto (96 dp) alcanza para iconos de hasta ~56 dp; más grandes usan el completo.
+    val compact = size <= 56.dp
+    val icon by produceState<ImageBitmap?>(vm.iconLoader.cached(app, iconPack, iconOverride, compact = compact), app, iconPack, iconOverride, compact, vm.iconLoader.styleKey) {
+        value = withContext(Dispatchers.IO) { vm.iconLoader.load(app, iconPack, iconOverride, compact = compact) }
     }
     icon?.let {
-        Box(Modifier.size(44.dp).clip(shape).background(Color.White.copy(alpha = 0.12f))) {
-            IconImage(it, contentDescription ?: app.label, zoomPercent, 44.dp * paddingPercent / 100)
+        Box(Modifier.size(size).clip(shape).background(Color.White.copy(alpha = 0.12f))) {
+            IconImage(it, contentDescription ?: app.label, zoomPercent, size * paddingPercent / 100)
         }
-    } ?: androidx.compose.foundation.layout.Spacer(Modifier.size(44.dp))
+    } ?: androidx.compose.foundation.layout.Spacer(Modifier.size(size))
 }

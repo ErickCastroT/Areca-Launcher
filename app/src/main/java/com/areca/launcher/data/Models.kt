@@ -2,6 +2,9 @@ package com.areca.launcher.data
 
 enum class GridLayout { HONEYCOMB, ROWS }
 
+/** LIST: lista con nombre; GRID: cuadrícula de iconos. */
+enum class DrawerStyle { LIST, GRID }
+
 enum class IconShape { CIRCLE, SQUIRCLE, ROUNDED_SQUARE, HEXAGON, TEARDROP }
 
 /** SYSTEM: colores dinámicos de Android (Material You) y claro/oscuro del sistema. ARECA: paleta propia, siempre oscura. */
@@ -98,6 +101,16 @@ data class LauncherSettings(
     val showClock: Boolean = true,
     /** Fila de apps recientes al inicio del listado de apps. */
     val showRecents: Boolean = true,
+    val drawerStyle: DrawerStyle = DrawerStyle.LIST,
+    /** Columnas de la cuadrícula del listado de apps. */
+    val drawerColumns: Int = 4,
+    /** Tamaño del icono en la cuadrícula, en dp (se reduce si no cabe en la columna). */
+    val drawerIconSize: Int = 56,
+    val drawerShowLabels: Boolean = true,
+    /** Barra de letras y su salto rápido en la cuadrícula. */
+    val drawerLetterIndex: Boolean = true,
+    /** Encabezados por letra en la cuadrícula; apagado, las apps van seguidas en orden alfabético. */
+    val drawerGroupByLetter: Boolean = true,
     /** Insignias con el número de notificaciones en las burbujas (requiere acceso a notificaciones). */
     val showBadges: Boolean = false,
     /** Deslizar hacia arriba desde la parte baja del escritorio abre las apps abiertas. */
@@ -136,3 +149,7 @@ fun LauncherSettings.zoomFor(appKey: String): Int =
 const val DEFAULT_ICON_ZOOM = 150
 const val MAX_WALLPAPER_DIM = 70
 const val MIN_TILT_STRENGTH = 10
+const val MIN_DRAWER_COLUMNS = 3
+const val MAX_DRAWER_COLUMNS = 7
+const val MIN_DRAWER_ICON_SIZE = 40
+const val MAX_DRAWER_ICON_SIZE = 80

@@ -52,7 +52,12 @@ import com.areca.launcher.ui.home.hasAccelerometer
 import com.areca.launcher.ui.MAX_ICON_ZOOM
 import com.areca.launcher.ui.MIN_ICON_ZOOM
 import com.areca.launcher.data.LanguageStore
+import com.areca.launcher.data.DrawerStyle
 import com.areca.launcher.data.GridLayout
+import com.areca.launcher.data.MAX_DRAWER_COLUMNS
+import com.areca.launcher.data.MAX_DRAWER_ICON_SIZE
+import com.areca.launcher.data.MIN_DRAWER_COLUMNS
+import com.areca.launcher.data.MIN_DRAWER_ICON_SIZE
 import com.areca.launcher.data.IconShape
 import com.areca.launcher.data.ThemeMode
 import com.areca.launcher.data.MIN_TILT_STRENGTH
@@ -348,6 +353,48 @@ fun SettingsScreen(vm: HomeViewModel) {
                         checked = s.showRecents,
                         onChange = vm::setShowRecents,
                     )
+                    Text(stringResource(R.string.label_drawer_style), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 12.dp))
+                    SegmentedChoice(
+                        options = listOf(stringResource(R.string.drawer_style_list), stringResource(R.string.drawer_style_grid)),
+                        selected = s.drawerStyle.ordinal,
+                        onSelect = { vm.setDrawerStyle(DrawerStyle.entries[it]) },
+                    )
+                    if (s.drawerStyle == DrawerStyle.GRID) {
+                        SliderRow(
+                            label = stringResource(R.string.settings_drawer_columns),
+                            valueText = s.drawerColumns.toString(),
+                            value = s.drawerColumns.toFloat(),
+                            range = MIN_DRAWER_COLUMNS.toFloat()..MAX_DRAWER_COLUMNS.toFloat(),
+                            steps = MAX_DRAWER_COLUMNS - MIN_DRAWER_COLUMNS - 1,
+                            onChange = { vm.setDrawerColumns(it.toInt()) },
+                        )
+                        SliderRow(
+                            label = stringResource(R.string.settings_drawer_icon_size),
+                            valueText = "${s.drawerIconSize} dp",
+                            value = s.drawerIconSize.toFloat(),
+                            range = MIN_DRAWER_ICON_SIZE.toFloat()..MAX_DRAWER_ICON_SIZE.toFloat(),
+                            steps = (MAX_DRAWER_ICON_SIZE - MIN_DRAWER_ICON_SIZE) / 4 - 1,
+                            onChange = { vm.setDrawerIconSize((it / 4).toInt() * 4) },
+                        )
+                        ToggleRow(
+                            title = stringResource(R.string.settings_drawer_labels),
+                            subtitle = stringResource(R.string.settings_drawer_labels_hint),
+                            checked = s.drawerShowLabels,
+                            onChange = vm::setDrawerShowLabels,
+                        )
+                        ToggleRow(
+                            title = stringResource(R.string.settings_drawer_grouped),
+                            subtitle = stringResource(R.string.settings_drawer_grouped_hint),
+                            checked = s.drawerGroupByLetter,
+                            onChange = vm::setDrawerGroupByLetter,
+                        )
+                        ToggleRow(
+                            title = stringResource(R.string.settings_drawer_index),
+                            subtitle = stringResource(R.string.settings_drawer_index_hint),
+                            checked = s.drawerLetterIndex,
+                            onChange = vm::setDrawerLetterIndex,
+                        )
+                    }
                 }
             }
             SettingsPage.PERMISSIONS -> {

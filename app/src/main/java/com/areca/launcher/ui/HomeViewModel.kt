@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.areca.launcher.ArecaApp
+import com.areca.launcher.data.DrawerStyle
 import com.areca.launcher.data.FOLDER_PACKAGE
 import com.areca.launcher.data.FOLDER_PREFIX
 import com.areca.launcher.data.Folder
@@ -413,6 +414,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun wallpaperFile(name: String) = app.imageStore.wallpaperFile(name)
     fun setWallpaperDim(v: Int) = update { settingsRepo.setWallpaperDim(v) }
     fun setAccent(v: AccentColor) = update { settingsRepo.setAccent(v) }
+    fun setDrawerStyle(v: DrawerStyle) = update { settingsRepo.setDrawerStyle(v) }
+    fun setDrawerColumns(v: Int) = update { settingsRepo.setDrawerColumns(v) }
+    fun setDrawerIconSize(v: Int) = update { settingsRepo.setDrawerIconSize(v) }
+    fun setDrawerShowLabels(v: Boolean) = update { settingsRepo.setDrawerShowLabels(v) }
+    fun setDrawerLetterIndex(v: Boolean) = update { settingsRepo.setDrawerLetterIndex(v) }
+    fun setDrawerGroupByLetter(v: Boolean) = update { settingsRepo.setDrawerGroupByLetter(v) }
     fun setTiltEnabled(v: Boolean) = update { settingsRepo.setTiltEnabled(v) }
     fun setTiltStrength(v: Int) = update { settingsRepo.setTiltStrength(v) }
     fun setThemedIcons(v: Boolean) = update { settingsRepo.setThemedIcons(v) }
