@@ -46,7 +46,7 @@ import com.areca.launcher.R
 import com.areca.launcher.ui.HomeViewModel
 import com.areca.launcher.ui.Screen
 
-private const val DEVELOPER_NAME = "Erick Castro"
+private const val DEVELOPER_NAME = "erickcastrot"
 private const val DEVELOPER_EMAIL = "erick.castrotovar@hotmail.com"
 
 /** Datos de la compilación y del teléfono, para saber qué versión corre y adjuntarlos a un reporte. */
