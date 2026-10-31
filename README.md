@@ -1,6 +1,6 @@
 # Areca Launcher
 
-🇬🇧 **English** · 🇲🇽 [Español](README.es.md)
+🇬🇧 **English** · 🇲🇽 [Español](README.es.md) · 🌐 [Website](https://erickcastrot.github.io/Areca-Launcher/)
 
 An Android launcher written in Kotlin with Jetpack Compose. It shows your favorite apps as bubbles in a honeycomb
 that scrolls vertically with a magnifying effect toward the center, or in straight rows.

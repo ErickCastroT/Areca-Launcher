@@ -1,6 +1,6 @@
 # Areca Launcher
 
-🇬🇧 [English](README.md) · 🇲🇽 **Español**
+🇬🇧 [English](README.md) · 🇲🇽 **Español** · 🌐 [Sitio web](https://erickcastrot.github.io/Areca-Launcher/)
 
 Launcher para Android escrito en Kotlin con Jetpack Compose. Muestra tus apps favoritas como burbujas en un panal
 que se desplaza en vertical, con efecto de lupa hacia el centro, o en hileras rectas.

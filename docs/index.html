@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Areca Launcher</title>
+<meta name="description" content="Un launcher para Android que muestra tus apps favoritas como burbujas en un panal. / An Android launcher that shows your favorite apps as bubbles in a honeycomb.">
+<meta property="og:title" content="Areca Launcher">
+<meta property="og:description" content="Tus apps, en panal. / Your apps, in a honeycomb.">
+<meta property="og:image" content="https://erickcastrot.github.io/Areca-Launcher/screenshots/home.jpg">
+<meta name="theme-color" content="#e8ece3">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23101a14'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23c99a2e'/%3E%3C/svg%3E">
+<style>
+@font-face {
+  font-family: "Bricolage";
+  src: url("assets/bricolage.woff2") format("woff2");
+  font-weight: 200 800;
+  font-stretch: 75% 100%;
+  font-display: swap;
+}
+:root {
+  --fog: #e8ece3;
+  --chalk: #f7f9f4;
+  --ink: #16261d;
+  --moss: #3f6a4b;
+  --husk: #c99a2e;
+  --night: #101a14;
+  --line: #c5cdbd;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--fog);
+  color: var(--ink);
+  font: 400 1.0625rem/1.6 "Bricolage", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+html[data-lang="es"] [lang="en"], html[data-lang="en"] [lang="es"] { display: none; }
+a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--moss); outline-offset: 3px; border-radius: 6px; }
+.wrap { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
+
+/* Header */
+.top { display: flex; justify-content: space-between; align-items: center; padding-block: 1.25rem; }
+.mark { display: inline-flex; align-items: center; gap: 0.6rem; font-weight: 700; font-size: 1.15rem; text-decoration: none; }
+.mark i { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--night); display: grid; place-items: center; }
+.mark i::after { content: ""; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--husk); }
+.langs { display: flex; gap: 0.25rem; padding: 0.2rem; border-radius: 99px; background: var(--chalk); }
+.langs button { font: inherit; font-size: 0.9rem; font-weight: 600; border: 0; background: none; color: var(--ink); padding: 0.3rem 0.8rem; border-radius: 99px; cursor: pointer; }
+.langs button[aria-pressed="true"] { background: var(--night); color: var(--chalk); }
+
+/* Hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.5rem, 5vw, 4rem); align-items: center; padding-block: clamp(1.5rem, 5vw, 4rem) clamp(3rem, 8vw, 6rem); }
+.hero h1 { margin: 0 0 1.25rem; font-size: clamp(2.8rem, 7vw, 5.2rem); line-height: 0.98; font-weight: 800; font-stretch: 82%; letter-spacing: -0.02em; text-wrap: balance; }
+.hero p { margin: 0 0 1.75rem; max-width: 34rem; font-size: 1.2rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.btn { display: inline-block; font-weight: 700; text-decoration: none; padding: 0.85rem 1.4rem; border-radius: 99px; }
+.btn-main { background: var(--husk); color: var(--night); }
+.btn-main:hover { background: #d8a933; }
+.btn-alt { box-shadow: inset 0 0 0 2px var(--ink); }
+.btn-alt:hover { background: var(--chalk); }
+.hero .hint { margin: 1.1rem 0 0; font-size: 0.95rem; color: #4d5f52; }
+.comb { position: relative; width: 100%; max-width: 520px; aspect-ratio: 1 / 1.08; margin-inline: auto; touch-action: pan-y; }
+.bubble { position: absolute; left: 0; top: 0; border-radius: 50%; background: var(--night); color: var(--chalk); display: grid; place-items: center; will-change: transform; }
+.bubble.gold { background: var(--husk); color: var(--night); }
+.bubble.moss { background: var(--moss); color: var(--chalk); }
+.bubble svg { width: 46%; height: 46%; fill: currentColor; }
+
+/* Sections */
+.section { padding-block: clamp(2.5rem, 7vw, 5rem); border-top: 1px solid var(--line); }
+.section h2 { margin: 0 0 1.5rem; font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.05; font-weight: 800; font-stretch: 85%; letter-spacing: -0.01em; }
+.story { max-width: 42rem; font-size: 1.25rem; line-height: 1.55; }
+.story p { margin: 0 0 1rem; }
+
+.demos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 2rem 1rem; }
+.demos figure { margin: 0; }
+.screen { width: min(100%, 230px); max-width: 100%; margin-inline: auto; padding: 7px; border-radius: 30px; background: var(--night); }
+.screen img { display: block; width: 100%; height: auto; border-radius: 24px; }
+.demos figcaption { margin-top: 0.9rem; text-align: center; font-size: 0.95rem; }
+.demos b { display: block; font-weight: 700; }
+
+.feat { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem 3rem; margin: 0; }
+.feat div { max-width: 34rem; }
+.feat dt { font-weight: 700; font-size: 1.15rem; }
+.feat dd { margin: 0.2rem 0 0; }
+
+.steps { margin: 0 0 2rem; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 0.9rem; max-width: 40rem; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 2.25rem 1fr; gap: 0.9rem; align-items: start; }
+.steps li::before { content: counter(s); width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--night); color: var(--chalk); display: grid; place-items: center; font-weight: 700; }
+.steps li span { padding-top: 0.3rem; }
+.notes { max-width: 42rem; margin: 0; padding-left: 1.1rem; }
+.notes li { margin-bottom: 0.5rem; }
+
+.foot { padding-block: 2rem 3rem; border-top: 1px solid var(--line); font-size: 0.95rem; color: #4d5f52; }
+.foot p { margin: 0 0 0.35rem; }
+
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; }
+  .feat { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="#top"><i></i>Areca</a>
+    <div class="langs" role="group" aria-label="Idioma / Language">
+      <button type="button" data-set="es" aria-pressed="true">ES</button>
+      <button type="button" data-set="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div>
+        <h1><span lang="es">Tus apps, en panal.</span><span lang="en">Your apps, in a honeycomb.</span></h1>
+        <p>
+          <span lang="es">Areca es un launcher para Android. Muestra tus favoritas como burbujas que crecen hacia el centro mientras te desplazas.</span>
+          <span lang="en">Areca is an Android launcher. It shows your favorites as bubbles that grow toward the center as you scroll.</span>
+        </p>
+        <div class="actions">
+          <a class="btn btn-main" href="https://github.com/ErickCastroT/Areca-Launcher/releases/latest"><span lang="es">Descargar el APK</span><span lang="en">Download the APK</span></a>
+          <a class="btn btn-alt" href="https://github.com/ErickCastroT/Areca-Launcher"><span lang="es">Ver el código</span><span lang="en">View the source</span></a>
+        </div>
+        <p class="hint">
+          <span lang="es">Para Android 8.0 o superior. Sigue en desarrollo.</span>
+          <span lang="en">For Android 8.0 or later. Still in development.</span>
+        </p>
+      </div>
+      <div class="comb" id="comb" aria-hidden="true"></div>
+    </section>
+
+    <section class="section">
+      <h2><span lang="es">De dónde viene</span><span lang="en">Where it comes from</span></h2>
+      <div class="story">
+        <p lang="es">La inspiración principal es el launcher de Palm, que se vio en un teléfono miniatura en 2018.</p>
+        <p lang="es">Con los años existieron algunas alternativas a ese diseño, pero ninguna está disponible hoy. Areca es mi intento de revivir ese concepto tan peculiar.</p>
+        <p lang="en">The main inspiration is the Palm launcher, which showed up on a miniature phone in 2018.</p>
+        <p lang="en">A few alternatives to that design existed over the years, but none of them is available today. Areca is my attempt to bring that peculiar concept back to life.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2><span lang="es">Así se mueve</span><span lang="en">How it moves</span></h2>
+      <div class="demos">
+        <figure>
+          <div class="screen"><img src="screenshots/demo-home.gif" width="320" height="711" loading="lazy" decoding="async" alt="" ></div>
+          <figcaption><b lang="es">Escritorio</b><b lang="en">Home screen</b><span lang="es">Lupa hacia el centro y atajos</span><span lang="en">Fisheye and shortcuts</span></figcaption>
+        </figure>
+        <figure>
+          <div class="screen"><img src="screenshots/demo-drawer.gif" width="320" height="711" loading="lazy" decoding="async" alt=""></div>
+          <figcaption><b lang="es">Listado de apps</b><b lang="en">App list</b><span lang="es">Letras y desplazamiento rápido</span><span lang="en">Letters and fast scroll</span></figcaption>
+        </figure>
+        <figure>
+          <div class="screen"><img src="screenshots/demo-settings.gif" width="320" height="711" loading="lazy" decoding="async" alt=""></div>
+          <figcaption><b lang="es">Apariencia</b><b lang="en">Look</b><span lang="es">Tema, acento e iconos</span><span lang="en">Theme, accent and icons</span></figcaption>
+        </figure>
+        <figure>
+          <div class="screen"><img src="screenshots/demo-backgrounds.gif" width="320" height="711" loading="lazy" decoding="async" alt=""></div>
+          <figcaption><b lang="es">Fondos</b><b lang="en">Backgrounds</b><span lang="es">Colores, degradados o tu imagen</span><span lang="en">Colors, gradients or your own image</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2><span lang="es">Qué hace</span><span lang="en">What it does</span></h2>
+      <dl class="feat">
+        <div><dt lang="es">Escritorio de burbujas</dt><dt lang="en">Bubble home screen</dt>
+          <dd lang="es">En panal o en hileras, con columnas, tamaño, separación y cinco formas de icono. Si quieres, las burbujas se desplazan al inclinar el teléfono.</dd>
+          <dd lang="en">In a honeycomb or in rows, with columns, size, spacing and five icon shapes. Optionally the bubbles drift as you tilt the phone.</dd></div>
+        <div><dt lang="es">Favoritas y carpetas</dt><dt lang="en">Favorites and folders</dt>
+          <dd lang="es">Reordénalas arrastrando, agrúpalas en carpetas y oculta las apps que no quieras ver.</dd>
+          <dd lang="en">Reorder by dragging, group into folders and hide the apps you don't want to see.</dd></div>
+        <div><dt lang="es">Iconos</dt><dt lang="en">Icons</dt>
+          <dd lang="es">Paquetes de iconos, iconos monocromos de Android 13, un icono distinto por app y encuadre ajustable.</dd>
+          <dd lang="en">Icon packs, Android 13 monochrome icons, a different icon per app and adjustable framing.</dd></div>
+        <div><dt lang="es">Widgets</dt><dt lang="en">Widgets</dt>
+          <dd lang="es">En el escritorio, arriba o debajo de las burbujas. En horizontal tienen su propia columna.</dd>
+          <dd lang="en">On the home screen, above or below the bubbles. In landscape they get their own column.</dd></div>
+        <div><dt lang="es">Tema y fondo</dt><dt lang="en">Theme and background</dt>
+          <dd lang="es">Claro u oscuro del sistema, oscuro o negro puro, con el color de acento que elijas. Fondo del sistema, colores, degradados o una imagen de tu galería.</dd>
+          <dd lang="en">System light or dark, dark or pure black, with the accent color you pick. The system background, colors, gradients or an image from your gallery.</dd></div>
+        <div><dt lang="es">Gestos e insignias</dt><dt lang="en">Gestures and badges</dt>
+          <dd lang="es">Doble toque para bloquear, deslizar para las notificaciones y para las apps abiertas. Las insignias solo cuentan notificaciones; nunca leen su contenido.</dd>
+          <dd lang="en">Double tap to lock, swipe for notifications and for recent apps. Badges only count notifications; they never read the content.</dd></div>
+      </dl>
+    </section>
+
+    <section class="section" id="install">
+      <h2><span lang="es">Instalar</span><span lang="en">Install</span></h2>
+      <ol class="steps">
+        <li><span lang="es">Descarga el APK de la <a href="https://github.com/ErickCastroT/Areca-Launcher/releases/latest">última versión</a>.</span><span lang="en">Download the APK of the <a href="https://github.com/ErickCastroT/Areca-Launcher/releases/latest">latest release</a>.</span></li>
+        <li><span lang="es">Ábrelo y permite instalar desde esa fuente.</span><span lang="en">Open it and allow installs from that source.</span></li>
+        <li><span lang="es">En Ajustes → Permisos, elige Areca como tu pantalla de inicio.</span><span lang="en">In Settings → Permissions, set Areca as your default home app.</span></li>
+      </ol>
+      <ul class="notes">
+        <li lang="es">El APK está firmado con la clave de debug de Android, así que es para pruebas. Una versión futura con otra clave no se instalará encima: habría que desinstalar antes.</li>
+        <li lang="en">The APK is signed with the Android debug key, so it is meant for testing. A future release signed with a different key will not install over it; you would need to uninstall first.</li>
+        <li lang="es">Probado en un Samsung con Android 13 y en un Xiaomi con Android 11. Puede fallar en otros equipos.</li>
+        <li lang="en">Tested on a Samsung running Android 13 and a Xiaomi running Android 11. It may misbehave on other devices.</li>
+        <li lang="es">No usa internet y no envía ningún dato.</li>
+        <li lang="en">It does not use the internet and sends no data.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p lang="es">Erick Castro, 2026. El código es visible bajo la <a href="https://github.com/ErickCastroT/Areca-Launcher/blob/main/LICENSE">PolyForm Strict License 1.0.0</a>: puedes leerlo y usar la app sin fines comerciales, pero no distribuirla ni modificarla.</p>
+    <p lang="en">Erick Castro, 2026. The source is available under the <a href="https://github.com/ErickCastroT/Areca-Launcher/blob/main/LICENSE">PolyForm Strict License 1.0.0</a>: you may read it and use the app for noncommercial purposes, but not distribute or modify it.</p>
+    <p>Bricolage Grotesque, <a href="assets/OFL-BricolageGrotesque.txt">SIL Open Font License 1.1</a>.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  function setLang(l) {
+    root.lang = l; root.setAttribute("data-lang", l);
+    document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.set === l)); });
+  }
+  document.querySelectorAll(".langs button").forEach(function (b) { b.addEventListener("click", function () { setLang(b.dataset.set); }); });
+  if (!/^es/i.test(navigator.language || "es")) setLang("en");
+
+  // Panal del encabezado: la misma lupa del launcher, que sigue al puntero.
+  var comb = document.getElementById("comb");
+  var glyphs = [
+    '<circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="3"/>',
+    '<rect x="5" y="5" width="14" height="14" rx="4"/>',
+    '<path d="M12 4l9 16H3z"/>',
+    '<path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/>',
+    '<rect x="4" y="5" width="16" height="3" rx="1.5"/><rect x="4" y="10.5" width="16" height="3" rx="1.5"/><rect x="4" y="16" width="16" height="3" rx="1.5"/>',
+    '<circle cx="7" cy="12" r="2.6"/><circle cx="17" cy="12" r="2.6"/><circle cx="12" cy="6" r="2.6"/><circle cx="12" cy="18" r="2.6"/>',
+    '<path d="M12 3l9 9-9 9-9-9z"/>',
+    '<path d="M8 4l12 8-12 8z"/>'
+  ];
+  var tones = ["", "", "gold", "", "", "moss", "", "", "", "gold", "", "", "moss", ""];
+  var cols = 5, rows = 7, items = [], W = 0, H = 0, D = 0;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var focus = { x: 0, y: 0 }, target = { x: 0, y: 0 }, raf = 0;
+
+  for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+    var n = r * cols + c, el = document.createElement("div");
+    el.className = "bubble " + tones[n % tones.length];
+    el.innerHTML = '<svg viewBox="0 0 24 24">' + glyphs[(n * 3) % glyphs.length] + "</svg>";
+    comb.appendChild(el);
+    items.push({ el: el, c: c, r: r, x: 0, y: 0 });
+  }
+  function layout() {
+    W = comb.clientWidth; H = comb.clientHeight;
+    var px = W / (cols + 0.5), py = px * 0.866;
+    D = W * 0.125;
+    var top = (H - py * (rows - 1)) / 2;
+    items.forEach(function (it) {
+      it.x = (it.c + 0.5 + (it.r % 2 ? 0.5 : 0)) * px;
+      it.y = top + it.r * py;
+      it.el.style.width = it.el.style.height = D + "px";
+    });
+    target.x = focus.x = W / 2; target.y = focus.y = H / 2;
+    paint();
+  }
+  function paint() {
+    var sigma = W * 0.3;
+    items.forEach(function (it) {
+      var dx = it.x - focus.x, dy = it.y - focus.y;
+      var s = 0.6 + 0.9 * Math.exp(-(dx * dx + dy * dy) / (sigma * sigma));
+      it.el.style.transform = "translate(" + (it.x - D / 2) + "px," + (it.y - D / 2) + "px) scale(" + s.toFixed(3) + ")";
+    });
+  }
+  function step() {
+    focus.x += (target.x - focus.x) * 0.16; focus.y += (target.y - focus.y) * 0.16;
+    paint();
+    raf = (Math.abs(target.x - focus.x) + Math.abs(target.y - focus.y) > 0.5) ? requestAnimationFrame(step) : 0;
+  }
+  function aim(x, y) { target.x = x; target.y = y; if (!raf) raf = requestAnimationFrame(step); }
+  if (!reduce) {
+    comb.addEventListener("pointermove", function (e) { var b = comb.getBoundingClientRect(); aim(e.clientX - b.left, e.clientY - b.top); });
+    comb.addEventListener("pointerleave", function () { aim(W / 2, H / 2); });
+  }
+  window.addEventListener("resize", layout);
+  layout();
+})();
+</script>
+</body>
+</html>
