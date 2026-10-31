@@ -5,8 +5,8 @@
 An Android launcher written in Kotlin with Jetpack Compose. It shows your favorite apps as bubbles in a honeycomb
 that scrolls vertically with a magnifying effect toward the center, or in straight rows.
 
-> Status: in development. Tested on a Samsung phone running Android 13; it still needs testing on more devices and
-> Android versions.
+> Status: in development. Tested on a Samsung Galaxy A71 (Android 13), a Xiaomi Mi A3 (Android 11) and the Android
+> Studio emulator.
 
 ## Inspiration
 
@@ -94,4 +94,4 @@ See [`LICENSES.md`](LICENSES.md).
 
 ## Author
 
-Erick Castro, 2026.
+erickcastrot, 2026.

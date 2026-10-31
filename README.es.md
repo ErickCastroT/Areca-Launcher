@@ -5,7 +5,8 @@
 Launcher para Android escrito en Kotlin con Jetpack Compose. Muestra tus apps favoritas como burbujas en un panal
 que se desplaza en vertical, con efecto de lupa hacia el centro, o en hileras rectas.
 
-> Estado: en desarrollo. Probado en un Samsung con Android 13; falta probarlo en más equipos y versiones.
+> Estado: en desarrollo. Probado en un Samsung Galaxy A71 (Android 13), un Xiaomi Mi A3 (Android 11) y el emulador de
+> Android Studio.
 
 ## Inspiración
 
@@ -92,4 +93,4 @@ Ver [`LICENSES.md`](LICENSES.md).
 
 ## Autor
 
-Erick Castro, 2026.
+erickcastrot, 2026.
