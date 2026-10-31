@@ -47,7 +47,7 @@ import com.areca.launcher.ui.HomeViewModel
 import com.areca.launcher.ui.Screen
 
 private const val DEVELOPER_NAME = "erickcastrot"
-private const val DEVELOPER_EMAIL = "erick.castrotovar@hotmail.com"
+private const val DEVELOPER_PAGE = "https://github.com/ErickCastroT/Areca-Launcher/issues"
 
 /** Datos de la compilación y del teléfono, para saber qué versión corre y adjuntarlos a un reporte. */
 private data class AboutInfo(
@@ -62,7 +62,6 @@ private data class AboutInfo(
 @Composable
 fun AboutScreen(vm: HomeViewModel) {
     val context = LocalContext.current
-    val chooser = stringResource(R.string.about_developer_email_chooser)
     val info = remember {
         AboutInfo(
             version = BuildConfig.VERSION_NAME,
@@ -112,8 +111,8 @@ fun AboutScreen(vm: HomeViewModel) {
                 InfoRow(stringResource(R.string.about_developer_name), DEVELOPER_NAME)
                 InfoRow(
                     stringResource(R.string.about_developer_contact),
-                    DEVELOPER_EMAIL,
-                    Modifier.clickable { sendEmail(context, chooser) },
+                    "github.com/ErickCastroT/Areca-Launcher",
+                    Modifier.clickable { openDeveloperPage(context) },
                 )
                 Text(
                     stringResource(R.string.about_copyright),
@@ -213,7 +212,6 @@ private fun copyInfo(context: Context, info: AboutInfo) {
     Toast.makeText(context, R.string.about_copied, Toast.LENGTH_SHORT).show()
 }
 
-private fun sendEmail(context: Context, chooserTitle: String) {
-    val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$DEVELOPER_EMAIL"))
-    runCatching { context.startActivity(Intent.createChooser(intent, chooserTitle)) }
+private fun openDeveloperPage(context: Context) {
+    runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(DEVELOPER_PAGE))) }
 }

@@ -159,7 +159,6 @@
     <string name="about_section_developer">Desarrollador</string>
     <string name="about_developer_name">Nombre</string>
     <string name="about_developer_contact">Contacto</string>
-    <string name="about_developer_email_chooser">Enviar correo</string>
     <string name="about_copyright">© 2026 erickcastrot</string>
     <string name="settings_language">Idioma</string>
     <string name="language_system">Sistema</string>
