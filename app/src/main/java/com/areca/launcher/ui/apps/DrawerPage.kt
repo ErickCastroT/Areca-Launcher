@@ -55,8 +55,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,11 +81,13 @@ import com.areca.launcher.ui.theme.toShape
 
 /** Listado de todas las apps instaladas (excepto las ocultas). */
 @Composable
-fun DrawerPage(vm: HomeViewModel) {
+fun DrawerPage(vm: HomeViewModel, active: Boolean) {
     val apps by vm.visibleApps.collectAsStateWithLifecycle()
     val settings by vm.settings.collectAsStateWithLifecycle()
     val recents by vm.recents.collectAsStateWithLifecycle()
     var query by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(active) { if (!active) focusManager.clearFocus() }
     val filtered = remember(apps, query) {
         if (query.isBlank()) apps else apps.filter { it.label.contains(query, ignoreCase = true) }
     }
@@ -125,7 +130,10 @@ fun DrawerPage(vm: HomeViewModel) {
             @Composable
             fun SearchAndMenu(modifier: Modifier) {
                 Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-                    ArecaSearchField(query, { query = it }, stringResource(R.string.drawer_search), Modifier.weight(1f))
+                    ArecaSearchField(
+                        query, { query = it }, stringResource(R.string.drawer_search),
+                        Modifier.weight(1f).focusProperties { canFocus = active },
+                    )
                     Box {
                         IconButton(onClick = { overflow = true }) {
                             Icon(Icons.Default.MoreVert, stringResource(R.string.action_more))

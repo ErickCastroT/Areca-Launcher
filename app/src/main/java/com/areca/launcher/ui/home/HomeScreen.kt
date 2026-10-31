@@ -77,7 +77,7 @@ fun HomeScreen(vm: HomeViewModel) {
     }
 
     HorizontalPager(pager, Modifier.fillMaxSize()) { page ->
-        if (page == HomeViewModel.HOME_PAGE) HomePage(vm, active = pager.currentPage == HomeViewModel.HOME_PAGE) else DrawerPage(vm)
+        if (page == HomeViewModel.HOME_PAGE) HomePage(vm, active = pager.currentPage == HomeViewModel.HOME_PAGE) else DrawerPage(vm, active = pager.currentPage != HomeViewModel.HOME_PAGE)
     }
 }
 
