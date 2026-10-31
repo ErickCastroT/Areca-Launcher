@@ -95,7 +95,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
 .demos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 2rem 1rem; }
 .demos figure { margin: 0; }
 .screen { width: min(100%, 230px); max-width: 100%; margin-inline: auto; padding: 7px; border-radius: 30px; background: var(--frame); box-shadow: 0 0 0 1px var(--line); }
-.screen img { display: block; width: 100%; height: auto; border-radius: 24px; }
+.screen img, .screen video { display: block; width: 100%; height: auto; border-radius: 24px; }
 .demos figcaption { margin-top: 0.9rem; text-align: center; font-size: 0.95rem; }
 .demos b { display: block; font-weight: 700; }
 
@@ -114,9 +114,27 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
 .foot { padding-block: 2rem 3rem; border-top: 1px solid var(--line); font-size: 0.95rem; color: var(--muted); }
 .foot p { margin: 0 0 0.35rem; }
 
+.install { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 2rem 4rem; align-items: start; }
+.latest p { margin: 0; }
+.latest .label { font-weight: 700; }
+.latest .num { margin: 0.15rem 0 0.5rem; font-size: clamp(2.8rem, 6vw, 4.2rem); line-height: 1; font-weight: 800; font-stretch: 82%; letter-spacing: -0.02em; }
+.latest .meta { color: var(--muted); }
+.latest .btn { margin-top: 1.25rem; }
+.install .steps { margin-bottom: 0; }
+.install .notes { margin-top: 1.75rem; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 3rem; margin-bottom: 1.5rem; }
+.two h3 { margin: 0 0 0.6rem; font-size: 1.15rem; }
+.two ul { margin: 0; padding-left: 1.1rem; }
+.two li { margin-bottom: 0.4rem; }
+.prose { max-width: 42rem; margin: 0 0 1rem; }
+.rel { max-width: 44rem; margin: 0 0 1.75rem; }
+.rel h3 { margin: 0 0 0.4rem; font-size: 1.3rem; font-weight: 800; font-stretch: 85%; }
+.rel time { margin-left: 0.6rem; font-size: 0.95rem; font-weight: 400; font-stretch: 100%; color: var(--muted); }
+.rel ul { margin: 0; padding-left: 1.1rem; }
+.rel li { margin-bottom: 0.35rem; }
 @media (max-width: 760px) {
-  .hero { grid-template-columns: 1fr; }
-  .feat { grid-template-columns: 1fr; }
+  .hero, .install { grid-template-columns: 1fr; }
+  .feat, .two { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
@@ -172,19 +190,19 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
       <h2><span lang="es">Así se mueve</span><span lang="en">How it moves</span></h2>
       <div class="demos">
         <figure>
-          <div class="screen"><img src="screenshots/demo-home.gif" width="320" height="711" loading="lazy" decoding="async" alt="" ></div>
-          <figcaption><b lang="es">Escritorio</b><b lang="en">Home screen</b><span lang="es">Lupa hacia el centro y atajos</span><span lang="en">Fisheye and shortcuts</span></figcaption>
+          <div class="screen"><video src="screenshots/demo-home.mp4" poster="screenshots/poster-home.jpg" width="320" height="711" autoplay muted loop playsinline preload="metadata" aria-label="Escritorio / Home screen"></video></div>
+          <figcaption><b lang="es">Escritorio</b><b lang="en">Home screen</b><span lang="es">Desplazamiento y lupa hacia el centro</span><span lang="en">Scrolling and the fisheye toward the center</span></figcaption>
         </figure>
         <figure>
-          <div class="screen"><img src="screenshots/demo-drawer.gif" width="320" height="711" loading="lazy" decoding="async" alt=""></div>
+          <div class="screen"><video src="screenshots/demo-drawer.mp4" poster="screenshots/poster-drawer.jpg" width="320" height="711" autoplay muted loop playsinline preload="metadata" aria-label="Listado de apps / App list"></video></div>
           <figcaption><b lang="es">Listado de apps</b><b lang="en">App list</b><span lang="es">Letras y desplazamiento rápido</span><span lang="en">Letters and fast scroll</span></figcaption>
         </figure>
         <figure>
-          <div class="screen"><img src="screenshots/demo-settings.gif" width="320" height="711" loading="lazy" decoding="async" alt=""></div>
+          <div class="screen"><video src="screenshots/demo-settings.mp4" poster="screenshots/poster-settings.jpg" width="320" height="711" autoplay muted loop playsinline preload="metadata" aria-label="Apariencia / Look"></video></div>
           <figcaption><b lang="es">Apariencia</b><b lang="en">Look</b><span lang="es">Tema, acento e iconos</span><span lang="en">Theme, accent and icons</span></figcaption>
         </figure>
         <figure>
-          <div class="screen"><img src="screenshots/demo-backgrounds.gif" width="320" height="711" loading="lazy" decoding="async" alt=""></div>
+          <div class="screen"><video src="screenshots/demo-backgrounds.mp4" poster="screenshots/poster-backgrounds.jpg" width="320" height="711" autoplay muted loop playsinline preload="metadata" aria-label="Fondos / Backgrounds"></video></div>
           <figcaption><b lang="es">Fondos</b><b lang="en">Backgrounds</b><span lang="es">Colores, degradados o tu imagen</span><span lang="en">Colors, gradients or your own image</span></figcaption>
         </figure>
       </div>
@@ -215,20 +233,101 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
     </section>
 
     <section class="section" id="install">
-      <h2><span lang="es">Instalar</span><span lang="en">Install</span></h2>
-      <ol class="steps">
-        <li><span lang="es">Descarga el APK de la <a href="https://github.com/ErickCastroT/Areca-Launcher/releases/latest">última versión</a>.</span><span lang="en">Download the APK of the <a href="https://github.com/ErickCastroT/Areca-Launcher/releases/latest">latest release</a>.</span></li>
-        <li><span lang="es">Ábrelo y permite instalar desde esa fuente.</span><span lang="en">Open it and allow installs from that source.</span></li>
-        <li><span lang="es">En Ajustes → Permisos, elige Areca como tu pantalla de inicio.</span><span lang="en">In Settings → Permissions, set Areca as your default home app.</span></li>
-      </ol>
-      <ul class="notes">
-        <li lang="es">El APK está firmado con la clave de debug de Android, así que es para pruebas. Una versión futura con otra clave no se instalará encima: habría que desinstalar antes.</li>
-        <li lang="en">The APK is signed with the Android debug key, so it is meant for testing. A future release signed with a different key will not install over it; you would need to uninstall first.</li>
-        <li lang="es">Probado en un Samsung con Android 13 y en un Xiaomi con Android 11. Puede fallar en otros equipos.</li>
-        <li lang="en">Tested on a Samsung running Android 13 and a Xiaomi running Android 11. It may misbehave on other devices.</li>
-        <li lang="es">Solo usa internet si le pides buscar actualizaciones: consulta a GitHub y no envía datos de tu teléfono. Nunca instala nada por su cuenta.</li>
-        <li lang="en">It only uses the internet if you ask it to check for updates: it asks GitHub and sends no data from your phone. It never installs anything by itself.</li>
-      </ul>
+      <h2><span lang="es">Descargar e instalar</span><span lang="en">Download and install</span></h2>
+      <div class="install">
+        <div class="latest" id="latest">
+          <p class="label"><span lang="es">Última versión</span><span lang="en">Latest version</span></p>
+          <p class="num" id="latest-num">26.10.79</p>
+          <p class="meta" id="latest-meta"></p>
+          <a class="btn btn-main" id="latest-link" href="https://github.com/ErickCastroT/Areca-Launcher/releases/latest"><span lang="es">Descargar el APK</span><span lang="en">Download the APK</span></a>
+        </div>
+        <div>
+          <ol class="steps">
+            <li><span lang="es">Descarga el APK.</span><span lang="en">Download the APK.</span></li>
+            <li><span lang="es">Ábrelo y permite instalar desde esa fuente.</span><span lang="en">Open it and allow installs from that source.</span></li>
+            <li><span lang="es">En Ajustes → Permisos, elige Areca como tu pantalla de inicio.</span><span lang="en">In Settings → Permissions, set Areca as your default home app.</span></li>
+          </ol>
+          <ul class="notes">
+            <li lang="es">El APK está firmado con la clave de debug de Android, así que es para pruebas. Una versión futura con otra clave no se instalará encima: habría que desinstalar antes.</li>
+            <li lang="en">The APK is signed with the Android debug key, so it is meant for testing. A future release signed with a different key will not install over it; you would need to uninstall first.</li>
+            <li lang="es">Para actualizar, usa Ajustes → Acerca de → Buscar actualizaciones, o descarga el APK nuevo e instálalo encima.</li>
+            <li lang="en">To update, use Settings → About → Check for updates, or download the new APK and install it over the old one.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="compat">
+      <h2><span lang="es">Compatibilidad</span><span lang="en">Compatibility</span></h2>
+      <dl class="feat">
+        <div><dt lang="es">Samsung Galaxy A71 (SM-A715F)</dt><dt lang="en">Samsung Galaxy A71 (SM-A715F)</dt>
+          <dd lang="es">Android 13. Es el equipo de desarrollo: aquí se prueban todas las funciones.</dd>
+          <dd lang="en">Android 13. This is the development phone: every feature is tried here.</dd></div>
+        <div><dt lang="es">Xiaomi Mi A3</dt><dt lang="en">Xiaomi Mi A3</dt>
+          <dd lang="es">Android 11. Se probaron la instalación, el arranque y el rendimiento.</dd>
+          <dd lang="en">Android 11. Installation, startup and performance were tested.</dd></div>
+        <div><dt lang="es">Versión mínima</dt><dt lang="en">Minimum version</dt>
+          <dd lang="es">Android 8.0 (API 26). Los iconos monocromos necesitan Android 13.</dd>
+          <dd lang="en">Android 8.0 (API 26). Monochrome icons need Android 13.</dd></div>
+        <div><dt lang="es">Sin probar</dt><dt lang="en">Not tested yet</dt>
+          <dd lang="es">Android 8 a 10, 12 y 14 o superior, tabletas y plegables. Si lo pruebas en otro equipo, cuéntame cómo te fue en <a href="https://github.com/ErickCastroT/Areca-Launcher/issues">GitHub</a>.</dd>
+          <dd lang="en">Android 8 to 10, 12 and 14 or later, tablets and foldables. If you try it on another device, tell me how it went on <a href="https://github.com/ErickCastroT/Areca-Launcher/issues">GitHub</a>.</dd></div>
+      </dl>
+    </section>
+
+    <section class="section" id="changelog">
+      <h2><span lang="es">Novedades</span><span lang="en">What's new</span></h2>
+      <div id="releases">
+        <p class="prose"><a href="https://github.com/ErickCastroT/Areca-Launcher/releases"><span lang="es">Ver todas las versiones en GitHub</span><span lang="en">See every release on GitHub</span></a></p>
+      </div>
+    </section>
+
+    <section class="section" id="privacy">
+      <h2><span lang="es">Privacidad y permisos</span><span lang="en">Privacy and permissions</span></h2>
+      <p class="prose" lang="es">Areca no tiene cuentas, anuncios ni analíticas. Lo que configuras (ajustes, favoritas, carpetas y recientes) se guarda en el almacenamiento privado de la app, en tu teléfono.</p>
+      <p class="prose" lang="en">Areca has no accounts, ads or analytics. What you configure (settings, favorites, folders and recents) is stored in the app's private storage, on your phone.</p>
+      <dl class="feat">
+        <div><dt lang="es">Internet</dt><dt lang="en">Internet</dt>
+          <dd lang="es">Solo para buscar actualizaciones, con el botón de Acerca de o con la búsqueda semanal, que viene apagada. Consulta la API de GitHub y no envía datos de tu teléfono; GitHub verá tu dirección IP, como en cualquier visita a su sitio.</dd>
+          <dd lang="en">Only to check for updates, with the button in About or the weekly check, which is off by default. It asks the GitHub API and sends no data from your phone; GitHub will see your IP address, as with any visit to its site.</dd></div>
+        <div><dt lang="es">Servicio de accesibilidad (opcional)</dt><dt lang="en">Accessibility service (optional)</dt>
+          <dd lang="es">Solo para que los gestos puedan bloquear la pantalla y abrir las notificaciones, acciones que Android únicamente permite así. No lee la pantalla ni el contenido de otras apps.</dd>
+          <dd lang="en">Only so that gestures can lock the screen and open the notifications, which Android only allows this way. It does not read the screen or the content of other apps.</dd></div>
+        <div><dt lang="es">Acceso a notificaciones (opcional)</dt><dt lang="en">Notification access (optional)</dt>
+          <dd lang="es">Solo para contar cuántas notificaciones tiene cada app y mostrar las insignias. No lee su texto.</dd>
+          <dd lang="en">Only to count how many notifications each app has and show the badges. It does not read their text.</dd></div>
+        <div><dt lang="es">Lista de apps instaladas</dt><dt lang="en">List of installed apps</dt>
+          <dd lang="es">Se consulta para mostrar tus apps y los paquetes de iconos. Se queda en el teléfono.</dd>
+          <dd lang="en">It is queried to show your apps and icon packs. It stays on the phone.</dd></div>
+        <div><dt lang="es">Desinstalar apps y panel de notificaciones</dt><dt lang="en">Uninstalling apps and the notification panel</dt>
+          <dd lang="es">Dos permisos menores: pedir la desinstalación desde el menú de una burbuja (Android siempre te pregunta antes) y abrir el panel con el gesto de deslizar hacia abajo.</dd>
+          <dd lang="en">Two minor permissions: requesting an uninstall from a bubble's menu (Android always asks you first) and opening the panel with the swipe-down gesture.</dd></div>
+        <div><dt lang="es">Lo que no pide</dt><dt lang="en">What it does not ask for</dt>
+          <dd lang="es">Ubicación, contactos, mensajes, micrófono, cámara ni almacenamiento. Tu imagen de fondo se copia dentro de la app. El respaldo es un archivo que tú exportas. Si tienes activa la copia de seguridad de Android, el sistema puede incluir los ajustes de la app.</dd>
+          <dd lang="en">Location, contacts, messages, microphone, camera or storage. Your background image is copied into the app. The backup is a file you export yourself. If Android's system backup is on, the system may include the app's settings.</dd></div>
+      </dl>
+    </section>
+
+    <section class="section" id="license">
+      <h2><span lang="es">Licencia: código visible, no abierto</span><span lang="en">License: visible code, not open source</span></h2>
+      <p class="prose" lang="es">Que el repositorio sea público no significa que puedas copiar o cambiar el código. Areca usa la PolyForm Strict License 1.0.0.</p>
+      <p class="prose" lang="en">A public repository does not mean you may copy or change the code. Areca uses the PolyForm Strict License 1.0.0.</p>
+      <div class="two">
+        <div>
+          <h3><span lang="es">Puedes</span><span lang="en">You may</span></h3>
+          <ul lang="es"><li>Leer y estudiar el código.</li><li>Usar la app con fines no comerciales: personales, de estudio o afición, y en organizaciones sin fines de lucro, educativas o públicas.</li><li>Citar partes del código dentro del uso justo que te dé la ley.</li></ul>
+          <ul lang="en"><li>Read and study the code.</li><li>Use the app for noncommercial purposes: personal, study or hobby, and in charitable, educational or public organizations.</li><li>Quote parts of the code within the fair use your law gives you.</li></ul>
+        </div>
+        <div>
+          <h3><span lang="es">No puedes</span><span lang="en">You may not</span></h3>
+          <ul lang="es"><li>Distribuir la app ni el código, ni subir tu copia a otra tienda o sitio.</li><li>Modificarlos ni crear obras derivadas, como un fork con cambios o una versión propia.</li><li>Usarlos con fines comerciales.</li></ul>
+          <ul lang="en"><li>Distribute the app or the code, or upload your copy to another store or site.</li><li>Modify them or make derivative works, such as a fork with changes or your own version.</li><li>Use them for commercial purposes.</li></ul>
+        </div>
+      </div>
+      <p class="prose" lang="es">GitHub permite hacer un fork dentro de su plataforma, pero eso no te da permiso para modificar ni redistribuir. Si quieres otro permiso, por ejemplo aportar cambios o un uso comercial, escríbeme en <a href="https://github.com/ErickCastroT/Areca-Launcher/issues">GitHub</a> y lo hablamos.</p>
+      <p class="prose" lang="en">GitHub lets you fork inside its platform, but that does not give you permission to modify or redistribute. If you want another permission, such as contributing changes or a commercial use, write to me on <a href="https://github.com/ErickCastroT/Areca-Launcher/issues">GitHub</a> and we will talk.</p>
+      <p class="prose" lang="es">Esto es un resumen. Manda el <a href="https://github.com/ErickCastroT/Areca-Launcher/blob/main/LICENSE">texto de la licencia</a>.</p>
+      <p class="prose" lang="en">This is a summary. The <a href="https://github.com/ErickCastroT/Areca-Launcher/blob/main/LICENSE">license text</a> is what counts.</p>
     </section>
   </main>
 
@@ -256,6 +355,68 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
   }
   document.querySelectorAll("#themes button").forEach(function (b) { b.addEventListener("click", function () { setTheme(b.dataset.themeSet, true); }); });
   setTheme(root.getAttribute("data-theme") || "system", false);
+
+
+  // Última versión y novedades: salen de los releases de GitHub, así que no hay que tocar la página en cada versión.
+  var API = "https://api.github.com/repos/ErickCastroT/Areca-Launcher/releases?per_page=6";
+  function whatsNew(body, lang) {
+    var lines = (body || "").split("\n");
+    var start = -1;
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].indexOf("## ") === 0 && lines[i].indexOf(lang === "es" ? "Español" : "English") >= 0) { start = i; break; }
+    }
+    if (start < 0) return [];
+    var out = [];
+    for (var j = start + 1; j < lines.length; j++) {
+      var l = lines[j];
+      if (l.indexOf("## ") === 0 || l.indexOf("**Install") === 0 || l.indexOf("**Instal") === 0) break;
+      if (l.indexOf("- ") === 0) out.push(l.slice(2).replace(/`/g, ""));
+    }
+    return out;
+  }
+  function fill(el, text) {
+    text.split("**").forEach(function (part, k) {
+      if (!part) return;
+      if (k % 2) { var b = document.createElement("strong"); b.textContent = part; el.appendChild(b); }
+      else el.appendChild(document.createTextNode(part));
+    });
+  }
+  function day(iso, lang) { return new Date(iso).toLocaleDateString(lang === "es" ? "es-MX" : "en-US", { year: "numeric", month: "long", day: "numeric" }); }
+  fetch(API, { headers: { Accept: "application/vnd.github+json" } })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (list) {
+      list = list.filter(function (r) { return !r.draft && !r.prerelease; });
+      if (!list.length) return;
+      var cur = list[0], apk = (cur.assets || []).filter(function (a) { return /\.apk$/.test(a.name); })[0];
+      document.getElementById("latest-num").textContent = cur.tag_name.replace(/^v/, "");
+      var meta = document.getElementById("latest-meta");
+      meta.textContent = "";
+      ["es", "en"].forEach(function (lang) {
+        var sp = document.createElement("span"); sp.lang = lang;
+        sp.textContent = (lang === "es" ? "Publicada el " : "Released on ") + day(cur.published_at, lang) + (apk ? " · APK " + (apk.size / 1048576).toFixed(1) + " MB" : "");
+        meta.appendChild(sp);
+      });
+      if (apk) document.getElementById("latest-link").href = apk.browser_download_url;
+      var box = document.getElementById("releases"), more = box.firstElementChild;
+      list.slice(0, 5).forEach(function (rel) {
+        ["es", "en"].forEach(function (lang) {
+          var items = whatsNew(rel.body, lang);
+          if (!items.length) return;
+          var art = document.createElement("article"); art.className = "rel"; art.lang = lang;
+          var h = document.createElement("h3"); h.textContent = rel.tag_name.replace(/^v/, "");
+          var t = document.createElement("time"); t.dateTime = rel.published_at; t.textContent = day(rel.published_at, lang); h.appendChild(t);
+          var ul = document.createElement("ul");
+          items.forEach(function (it) { var li = document.createElement("li"); fill(li, it); ul.appendChild(li); });
+          art.appendChild(h); art.appendChild(ul); box.insertBefore(art, more);
+        });
+      });
+    })
+    .catch(function () {});
+
+  // Con movimiento reducido, los videos no arrancan solos.
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll(".screen video").forEach(function (v) { v.removeAttribute("autoplay"); v.pause(); v.controls = true; });
+  }
 
   // Panal del encabezado: la misma lupa del launcher, que sigue al puntero.
   var comb = document.getElementById("comb");
