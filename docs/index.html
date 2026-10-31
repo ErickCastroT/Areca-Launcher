@@ -6,10 +6,12 @@
 <title>Areca Launcher</title>
 <meta name="description" content="Un launcher para Android que muestra tus apps favoritas como burbujas en un panal. / An Android launcher that shows your favorite apps as bubbles in a honeycomb.">
 <meta property="og:title" content="Areca Launcher">
-<meta property="og:description" content="Tus apps, en panal. / Your apps, in a honeycomb.">
+<meta property="og:description" content="Un launcher hecho de burbujas. / A launcher made of bubbles.">
 <meta property="og:image" content="https://erickcastrot.github.io/Areca-Launcher/screenshots/home.jpg">
-<meta name="theme-color" content="#e8ece3">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23101a14'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23c99a2e'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#e8ece3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1310" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<script>try{var t=localStorage.getItem("areca-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <style>
 @font-face {
   font-family: "Bricolage";
@@ -19,36 +21,53 @@
   font-display: swap;
 }
 :root {
-  --fog: #e8ece3;
-  --chalk: #f7f9f4;
+  color-scheme: light;
+  --bg: #e8ece3;
+  --surface: #f7f9f4;
   --ink: #16261d;
+  --muted: #4d5f52;
+  --line: #c5cdbd;
+  --bubble: #101a14;
+  --on-bubble: #f7f9f4;
   --moss: #3f6a4b;
   --husk: #c99a2e;
-  --night: #101a14;
-  --line: #c5cdbd;
+  --on-husk: #101a14;
+  --frame: #101a14;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0d1310; --surface: #18231c; --ink: #e4ebe2; --muted: #9db1a2; --line: #26352b;
+    --bubble: #24362c; --on-bubble: #f2f6ef; --moss: #4f8a62; --frame: #070b09;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1310; --surface: #18231c; --ink: #e4ebe2; --muted: #9db1a2; --line: #26352b;
+  --bubble: #24362c; --on-bubble: #f2f6ef; --moss: #4f8a62; --frame: #070b09;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  background: var(--fog);
+  background: var(--bg);
   color: var(--ink);
   font: 400 1.0625rem/1.6 "Bricolage", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 html[data-lang="es"] [lang="en"], html[data-lang="en"] [lang="es"] { display: none; }
 a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
-a:focus-visible, button:focus-visible { outline: 3px solid var(--moss); outline-offset: 3px; border-radius: 6px; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
 .wrap { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
 
 /* Header */
-.top { display: flex; justify-content: space-between; align-items: center; padding-block: 1.25rem; }
-.mark { display: inline-flex; align-items: center; gap: 0.6rem; font-weight: 700; font-size: 1.15rem; text-decoration: none; }
-.mark i { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--night); display: grid; place-items: center; }
-.mark i::after { content: ""; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--husk); }
-.langs { display: flex; gap: 0.25rem; padding: 0.2rem; border-radius: 99px; background: var(--chalk); }
-.langs button { font: inherit; font-size: 0.9rem; font-weight: 600; border: 0; background: none; color: var(--ink); padding: 0.3rem 0.8rem; border-radius: 99px; cursor: pointer; }
-.langs button[aria-pressed="true"] { background: var(--night); color: var(--chalk); }
+.top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1rem; padding-block: 1.25rem; }
+.tools { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.mark { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 800; font-size: 1.35rem; font-stretch: 85%; letter-spacing: -0.01em; text-decoration: none; }
+.mark img { width: 2.4rem; height: 2.4rem; border-radius: 22%; box-shadow: 0 0 0 1px var(--line); }
+.seg { display: flex; gap: 0.2rem; padding: 0.2rem; border-radius: 99px; background: var(--surface); }
+.seg button { font: inherit; font-size: 0.9rem; font-weight: 600; border: 0; background: none; color: var(--ink); padding: 0.3rem 0.8rem; border-radius: 99px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--bubble); color: var(--on-bubble); }
 
 /* Hero */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.5rem, 5vw, 4rem); align-items: center; padding-block: clamp(1.5rem, 5vw, 4rem) clamp(3rem, 8vw, 6rem); }
@@ -56,15 +75,15 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--moss); outline-
 .hero p { margin: 0 0 1.75rem; max-width: 34rem; font-size: 1.2rem; }
 .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 .btn { display: inline-block; font-weight: 700; text-decoration: none; padding: 0.85rem 1.4rem; border-radius: 99px; }
-.btn-main { background: var(--husk); color: var(--night); }
+.btn-main { background: var(--husk); color: var(--on-husk); }
 .btn-main:hover { background: #d8a933; }
 .btn-alt { box-shadow: inset 0 0 0 2px var(--ink); }
-.btn-alt:hover { background: var(--chalk); }
-.hero .hint { margin: 1.1rem 0 0; font-size: 0.95rem; color: #4d5f52; }
+.btn-alt:hover { background: var(--surface); }
+.hero .hint { margin: 1.1rem 0 0; font-size: 0.95rem; color: var(--muted); }
 .comb { position: relative; width: 100%; max-width: 520px; aspect-ratio: 1 / 1.08; margin-inline: auto; touch-action: pan-y; }
-.bubble { position: absolute; left: 0; top: 0; border-radius: 50%; background: var(--night); color: var(--chalk); display: grid; place-items: center; will-change: transform; }
-.bubble.gold { background: var(--husk); color: var(--night); }
-.bubble.moss { background: var(--moss); color: var(--chalk); }
+.bubble { position: absolute; left: 0; top: 0; border-radius: 50%; background: var(--bubble); color: var(--on-bubble); display: grid; place-items: center; will-change: transform; }
+.bubble.gold { background: var(--husk); color: var(--on-husk); }
+.bubble.moss { background: var(--moss); color: #f7f9f4; }
 .bubble svg { width: 46%; height: 46%; fill: currentColor; }
 
 /* Sections */
@@ -75,7 +94,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--moss); outline-
 
 .demos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 2rem 1rem; }
 .demos figure { margin: 0; }
-.screen { width: min(100%, 230px); max-width: 100%; margin-inline: auto; padding: 7px; border-radius: 30px; background: var(--night); }
+.screen { width: min(100%, 230px); max-width: 100%; margin-inline: auto; padding: 7px; border-radius: 30px; background: var(--frame); box-shadow: 0 0 0 1px var(--line); }
 .screen img { display: block; width: 100%; height: auto; border-radius: 24px; }
 .demos figcaption { margin-top: 0.9rem; text-align: center; font-size: 0.95rem; }
 .demos b { display: block; font-weight: 700; }
@@ -87,12 +106,12 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--moss); outline-
 
 .steps { margin: 0 0 2rem; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 0.9rem; max-width: 40rem; }
 .steps li { counter-increment: s; display: grid; grid-template-columns: 2.25rem 1fr; gap: 0.9rem; align-items: start; }
-.steps li::before { content: counter(s); width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--night); color: var(--chalk); display: grid; place-items: center; font-weight: 700; }
+.steps li::before { content: counter(s); width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--bubble); color: var(--on-bubble); display: grid; place-items: center; font-weight: 700; }
 .steps li span { padding-top: 0.3rem; }
 .notes { max-width: 42rem; margin: 0; padding-left: 1.1rem; }
 .notes li { margin-bottom: 0.5rem; }
 
-.foot { padding-block: 2rem 3rem; border-top: 1px solid var(--line); font-size: 0.95rem; color: #4d5f52; }
+.foot { padding-block: 2rem 3rem; border-top: 1px solid var(--line); font-size: 0.95rem; color: var(--muted); }
 .foot p { margin: 0 0 0.35rem; }
 
 @media (max-width: 760px) {
@@ -105,20 +124,27 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--moss); outline-
 <body>
 <div class="wrap">
   <header class="top">
-    <a class="mark" href="#top"><i></i>Areca</a>
-    <div class="langs" role="group" aria-label="Idioma / Language">
-      <button type="button" data-set="es" aria-pressed="true">ES</button>
-      <button type="button" data-set="en" aria-pressed="false">EN</button>
+    <a class="mark" href="#top"><img src="assets/icon.svg" width="48" height="48" alt="">Areca Launcher</a>
+    <div class="tools">
+      <div class="seg" id="themes" role="group" aria-label="Tema / Theme">
+        <button type="button" data-theme-set="system" aria-pressed="true"><span lang="es">Sistema</span><span lang="en">System</span></button>
+        <button type="button" data-theme-set="light" aria-pressed="false"><span lang="es">Claro</span><span lang="en">Light</span></button>
+        <button type="button" data-theme-set="dark" aria-pressed="false"><span lang="es">Oscuro</span><span lang="en">Dark</span></button>
+      </div>
+      <div class="seg" id="langs" role="group" aria-label="Idioma / Language">
+        <button type="button" data-set="es" aria-pressed="true">ES</button>
+        <button type="button" data-set="en" aria-pressed="false">EN</button>
+      </div>
     </div>
   </header>
 
   <main id="top">
     <section class="hero">
       <div>
-        <h1><span lang="es">Tus apps, en panal.</span><span lang="en">Your apps, in a honeycomb.</span></h1>
+        <h1><span lang="es">Un launcher hecho de burbujas.</span><span lang="en">A launcher made of bubbles.</span></h1>
         <p>
-          <span lang="es">Areca es un launcher para Android. Muestra tus favoritas como burbujas que crecen hacia el centro mientras te desplazas.</span>
-          <span lang="en">Areca is an Android launcher. It shows your favorites as bubbles that grow toward the center as you scroll.</span>
+          <span lang="es">Tus favoritas se acomodan en un panal y crecen hacia el centro mientras te desplazas. Para Android, inspirado en el launcher de Palm de 2018.</span>
+          <span lang="en">Your favorites settle into a honeycomb and grow toward the center as you scroll. For Android, inspired by the 2018 Palm launcher.</span>
         </p>
         <div class="actions">
           <a class="btn btn-main" href="https://github.com/ErickCastroT/Areca-Launcher/releases/latest"><span lang="es">Descargar el APK</span><span lang="en">Download the APK</span></a>
@@ -218,10 +244,18 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--moss); outline-
   var root = document.documentElement;
   function setLang(l) {
     root.lang = l; root.setAttribute("data-lang", l);
-    document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.set === l)); });
+    document.querySelectorAll("#langs button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.set === l)); });
   }
-  document.querySelectorAll(".langs button").forEach(function (b) { b.addEventListener("click", function () { setLang(b.dataset.set); }); });
+  document.querySelectorAll("#langs button").forEach(function (b) { b.addEventListener("click", function () { setLang(b.dataset.set); }); });
   if (!/^es/i.test(navigator.language || "es")) setLang("en");
+
+  function setTheme(t, save) {
+    if (t === "system") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", t);
+    document.querySelectorAll("#themes button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.themeSet === t)); });
+    if (save) { try { if (t === "system") localStorage.removeItem("areca-theme"); else localStorage.setItem("areca-theme", t); } catch (e) {} }
+  }
+  document.querySelectorAll("#themes button").forEach(function (b) { b.addEventListener("click", function () { setTheme(b.dataset.themeSet, true); }); });
+  setTheme(root.getAttribute("data-theme") || "system", false);
 
   // Panal del encabezado: la misma lupa del launcher, que sigue al puntero.
   var comb = document.getElementById("comb");
