@@ -186,6 +186,16 @@
     <string name="settings_drawer_grouped_hint">A, B, C… headings. Off, the apps run on in alphabetical order.</string>
     <string name="settings_drawer_index">Letter bar</string>
     <string name="settings_drawer_index_hint">Jump straight to a letter.</string>
+    <string name="about_section_updates">Updates</string>
+    <string name="update_check">Check for updates</string>
+    <string name="update_checking">Checking…</string>
+    <string name="update_up_to_date">You have the latest version.</string>
+    <string name="update_available">A new version is available: %1$s</string>
+    <string name="update_failed">Couldn\'t check. Check your connection.</string>
+    <string name="update_open">View on GitHub</string>
+    <string name="update_auto">Check every week</string>
+    <string name="update_auto_hint">When you open the app, at most once a week.</string>
+    <string name="update_privacy">It only asks GitHub and sends no data from your phone. Areca installs nothing: you download the APK yourself.</string>
     <string name="settings_show_recents">Show recent apps</string>
     <string name="settings_show_recents_hint">At the top of the app list. It only counts what you open from Areca; turning it off clears the record.</string>
     <string name="widget_height">Height</string>

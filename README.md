@@ -46,7 +46,7 @@ back to life.
 - **Background**: the system one, an image from your gallery, solid colors or gradients, with adjustable dimming.
 - **Backup** of your settings to a file, and Spanish and English interface.
 
-Nothing leaves the phone: the app does not use the internet and does not send any data.
+Nothing leaves the phone. The app only uses the internet if you ask it to check for updates (a button in About, or an optional weekly check that is off by default): it asks GitHub for the latest release and sends no data from your phone. It never installs anything by itself.
 
 ## Build
 

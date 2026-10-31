@@ -111,6 +111,13 @@ data class LauncherSettings(
     val drawerLetterIndex: Boolean = true,
     /** Encabezados por letra en la cuadrícula; apagado, las apps van seguidas en orden alfabético. */
     val drawerGroupByLetter: Boolean = true,
+    /** Buscar actualizaciones una vez por semana al abrir la app (apagado por defecto). */
+    val updateAutoCheck: Boolean = false,
+    /** Última búsqueda, en milisegundos; 0 = nunca. */
+    val updateLastCheck: Long = 0L,
+    /** Versión más nueva encontrada en la última búsqueda y su página; vacío si no hay. */
+    val updateAvailable: String = "",
+    val updateUrl: String = "",
     /** Insignias con el número de notificaciones en las burbujas (requiere acceso a notificaciones). */
     val showBadges: Boolean = false,
     /** Deslizar hacia arriba desde la parte baja del escritorio abre las apps abiertas. */

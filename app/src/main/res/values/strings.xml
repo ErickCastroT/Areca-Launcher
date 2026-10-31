@@ -186,6 +186,17 @@
     <string name="settings_drawer_grouped_hint">Encabezados A, B, C… Apagado, las apps van seguidas en orden alfabético.</string>
     <string name="settings_drawer_index">Barra de letras</string>
     <string name="settings_drawer_index_hint">Para saltar rápido a una letra.</string>
+    <string name="about_section_updates">Actualizaciones</string>
+    <string name="update_lang_is_es" translatable="false">true</string>
+    <string name="update_check">Buscar actualizaciones</string>
+    <string name="update_checking">Buscando…</string>
+    <string name="update_up_to_date">Tienes la última versión.</string>
+    <string name="update_available">Hay una versión nueva: %1$s</string>
+    <string name="update_failed">No se pudo comprobar. Revisa tu conexión.</string>
+    <string name="update_open">Ver en GitHub</string>
+    <string name="update_auto">Buscar cada semana</string>
+    <string name="update_auto_hint">Al abrir la app, como mucho una vez por semana.</string>
+    <string name="update_privacy">Solo consulta GitHub y no envía datos de tu teléfono. Areca no instala nada: descargas el APK tú mismo.</string>
     <string name="settings_show_recents">Mostrar apps recientes</string>
     <string name="settings_show_recents_hint">Al inicio del listado de apps. Solo cuenta lo que abres desde Areca; apagarlo borra el registro.</string>
     <string name="widget_height">Alto</string>

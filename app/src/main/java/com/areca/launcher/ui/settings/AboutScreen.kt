@@ -31,7 +31,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.areca.launcher.data.UpdateChecker
+import com.areca.launcher.ui.UpdateUi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -99,6 +103,7 @@ fun AboutScreen(vm: HomeViewModel) {
                 InfoRow(stringResource(R.string.about_build), info.build)
                 InfoRow(stringResource(R.string.about_package), info.packageName)
             }
+            UpdatesSection(vm)
             SettingsSection(stringResource(R.string.about_section_device)) {
                 InfoRow(stringResource(R.string.about_android), info.android)
                 InfoRow(stringResource(R.string.about_device), info.device)
@@ -128,6 +133,63 @@ fun AboutScreen(vm: HomeViewModel) {
             ) { Text(stringResource(R.string.about_copy)) }
         }
         }
+    }
+}
+
+/** Buscar actualizaciones en GitHub: a mano o, si el usuario lo activa, una vez por semana. Areca nunca instala nada. */
+@Composable
+private fun UpdatesSection(vm: HomeViewModel) {
+    val context = LocalContext.current
+    val settings by vm.settings.collectAsStateWithLifecycle()
+    val ui by vm.updateUi.collectAsStateWithLifecycle()
+    val spanish = stringResource(R.string.update_lang_is_es).toBoolean()
+    // Una búsqueda de esta sesión manda; si no, lo que dejó la búsqueda semanal.
+    val available = (ui as? UpdateUi.Available)
+        ?: settings.updateAvailable.takeIf { it.isNotEmpty() && UpdateChecker.isNewer(it, BuildConfig.VERSION_NAME) }
+            ?.let { UpdateUi.Available(it, "", settings.updateUrl) }
+
+    SettingsSection(stringResource(R.string.about_section_updates)) {
+        val status = when {
+            ui == UpdateUi.Checking -> stringResource(R.string.update_checking)
+            available != null -> stringResource(R.string.update_available, available.version)
+            ui == UpdateUi.UpToDate -> stringResource(R.string.update_up_to_date)
+            ui == UpdateUi.Failed -> stringResource(R.string.update_failed)
+            else -> null
+        }
+        if (status != null) {
+            Text(
+                status,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (available != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(vertical = 8.dp),
+            )
+        }
+        if (available != null && available.notes.isNotEmpty()) {
+            Text(available.notes, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 8.dp))
+        }
+        if (available != null && available.url.isNotEmpty()) {
+            FilledTonalButton(
+                onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(available.url))) } },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text(stringResource(R.string.update_open)) }
+        }
+        FilledTonalButton(
+            onClick = { vm.checkForUpdates(spanish) },
+            enabled = ui != UpdateUi.Checking,
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        ) { Text(stringResource(R.string.update_check)) }
+        ToggleRow(
+            title = stringResource(R.string.update_auto),
+            subtitle = stringResource(R.string.update_auto_hint),
+            checked = settings.updateAutoCheck,
+            onChange = vm::setUpdateAutoCheck,
+        )
+        Text(
+            stringResource(R.string.update_privacy),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
+        )
     }
 }
 

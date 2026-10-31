@@ -53,6 +53,7 @@ import com.areca.launcher.ui.MAX_ICON_ZOOM
 import com.areca.launcher.ui.MIN_ICON_ZOOM
 import com.areca.launcher.data.LanguageStore
 import com.areca.launcher.data.DrawerStyle
+import com.areca.launcher.data.UpdateChecker
 import com.areca.launcher.data.GridLayout
 import com.areca.launcher.data.MAX_DRAWER_COLUMNS
 import com.areca.launcher.data.MAX_DRAWER_ICON_SIZE
@@ -577,5 +578,11 @@ private fun SettingsMain(page: (SettingsPage) -> Unit, permissionsMissing: Int, 
         highlight = permissionsMissing > 0,
     ) { page(SettingsPage.PERMISSIONS) }
     CategoryRow(stringResource(R.string.settings_section_system), stringResource(R.string.cat_system_hint)) { page(SettingsPage.SYSTEM) }
-    CategoryRow(stringResource(R.string.settings_about_title), "${BuildConfig.VERSION_NAME} · ${BuildConfig.CODENAME}") { vm.open(Screen.ABOUT) }
+    val settings by vm.settings.collectAsStateWithLifecycle()
+    val newVersion = settings.updateAvailable.takeIf { it.isNotEmpty() && UpdateChecker.isNewer(it, BuildConfig.VERSION_NAME) }
+    CategoryRow(
+        stringResource(R.string.settings_about_title),
+        if (newVersion != null) stringResource(R.string.update_available, newVersion) else "${BuildConfig.VERSION_NAME} · ${BuildConfig.CODENAME}",
+        highlight = newVersion != null,
+    ) { vm.open(Screen.ABOUT) }
 }

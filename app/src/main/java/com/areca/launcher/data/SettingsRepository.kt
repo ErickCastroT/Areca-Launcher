@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -36,6 +37,10 @@ class SettingsRepository(private val context: Context) {
         val DRAWER_LABELS = booleanPreferencesKey("drawer_labels")
         val DRAWER_INDEX = booleanPreferencesKey("drawer_index")
         val DRAWER_GROUPED = booleanPreferencesKey("drawer_grouped")
+        val UPDATE_AUTO = booleanPreferencesKey("update_auto")
+        val UPDATE_LAST = longPreferencesKey("update_last_check")
+        val UPDATE_VERSION = stringPreferencesKey("update_available")
+        val UPDATE_URL = stringPreferencesKey("update_url")
         val TILT_ENABLED = booleanPreferencesKey("tilt_enabled")
         val TILT_STRENGTH = intPreferencesKey("tilt_strength")
         val THEMED_ICONS = booleanPreferencesKey("themed_icons")
@@ -83,6 +88,10 @@ class SettingsRepository(private val context: Context) {
             drawerShowLabels = p[Keys.DRAWER_LABELS] ?: d.drawerShowLabels,
             drawerLetterIndex = p[Keys.DRAWER_INDEX] ?: d.drawerLetterIndex,
             drawerGroupByLetter = p[Keys.DRAWER_GROUPED] ?: d.drawerGroupByLetter,
+            updateAutoCheck = p[Keys.UPDATE_AUTO] ?: d.updateAutoCheck,
+            updateLastCheck = p[Keys.UPDATE_LAST] ?: d.updateLastCheck,
+            updateAvailable = p[Keys.UPDATE_VERSION] ?: d.updateAvailable,
+            updateUrl = p[Keys.UPDATE_URL] ?: d.updateUrl,
             tiltEnabled = p[Keys.TILT_ENABLED] ?: d.tiltEnabled,
             tiltStrength = p[Keys.TILT_STRENGTH] ?: d.tiltStrength,
             themedIcons = p[Keys.THEMED_ICONS] ?: d.themedIcons,
@@ -142,6 +151,13 @@ class SettingsRepository(private val context: Context) {
     suspend fun setDrawerShowLabels(v: Boolean) = edit { it[Keys.DRAWER_LABELS] = v }
     suspend fun setDrawerLetterIndex(v: Boolean) = edit { it[Keys.DRAWER_INDEX] = v }
     suspend fun setDrawerGroupByLetter(v: Boolean) = edit { it[Keys.DRAWER_GROUPED] = v }
+    suspend fun setUpdateAutoCheck(v: Boolean) = edit { it[Keys.UPDATE_AUTO] = v }
+    /** Guarda el resultado de una búsqueda; [version] vacío = sin novedades. */
+    suspend fun setUpdateResult(checkedAt: Long, version: String, url: String) = edit {
+        it[Keys.UPDATE_LAST] = checkedAt
+        it[Keys.UPDATE_VERSION] = version
+        it[Keys.UPDATE_URL] = url
+    }
     suspend fun setTiltEnabled(v: Boolean) = edit { it[Keys.TILT_ENABLED] = v }
     suspend fun setTiltStrength(v: Int) = edit { it[Keys.TILT_STRENGTH] = v }
     suspend fun setThemedIcons(v: Boolean) = edit { it[Keys.THEMED_ICONS] = v }
@@ -195,6 +211,7 @@ class SettingsRepository(private val context: Context) {
         p[Keys.DRAWER_LABELS] = v.drawerShowLabels
         p[Keys.DRAWER_INDEX] = v.drawerLetterIndex
         p[Keys.DRAWER_GROUPED] = v.drawerGroupByLetter
+        p[Keys.UPDATE_AUTO] = v.updateAutoCheck
         p[Keys.TILT_ENABLED] = v.tiltEnabled
         p[Keys.TILT_STRENGTH] = v.tiltStrength
         p[Keys.PACK_FALLBACK] = v.packFallback

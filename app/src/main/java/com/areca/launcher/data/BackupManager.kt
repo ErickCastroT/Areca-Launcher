@@ -44,6 +44,7 @@ object BackupManager {
             put("drawerShowLabels", s.drawerShowLabels)
             put("drawerLetterIndex", s.drawerLetterIndex)
             put("drawerGroupByLetter", s.drawerGroupByLetter)
+            put("updateAutoCheck", s.updateAutoCheck)
             put("tiltEnabled", s.tiltEnabled)
             put("tiltStrength", s.tiltStrength)
             put("packFallback", s.packFallback)
@@ -102,6 +103,7 @@ object BackupManager {
                 drawerShowLabels = o.optBoolean("drawerShowLabels", d.drawerShowLabels),
                 drawerLetterIndex = o.optBoolean("drawerLetterIndex", d.drawerLetterIndex),
                 drawerGroupByLetter = o.optBoolean("drawerGroupByLetter", d.drawerGroupByLetter),
+                updateAutoCheck = o.optBoolean("updateAutoCheck", d.updateAutoCheck),
                 tiltEnabled = o.optBoolean("tiltEnabled", d.tiltEnabled),
                 tiltStrength = o.optInt("tiltStrength", d.tiltStrength).coerceIn(MIN_TILT_STRENGTH, 100),
                 packFallback = o.optBoolean("packFallback", d.packFallback),

@@ -44,7 +44,7 @@ peculiar.
 - **Fondo**: el del sistema, una imagen de tu galería, colores lisos o degradados, con oscurecimiento ajustable.
 - **Respaldo** de la configuración a un archivo, e idiomas español e inglés.
 
-Nada sale del teléfono: la app no usa internet ni envía datos.
+Nada sale del teléfono. La app solo usa internet si le pides buscar actualizaciones (un botón en Acerca de, o una búsqueda semanal opcional que viene apagada): consulta a GitHub cuál es el último release y no envía datos de tu teléfono. Nunca instala nada por su cuenta.
 
 ## Compilar
 

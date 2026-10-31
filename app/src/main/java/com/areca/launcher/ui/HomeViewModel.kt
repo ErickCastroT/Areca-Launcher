@@ -9,7 +9,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.areca.launcher.ArecaApp
+import com.areca.launcher.BuildConfig
 import com.areca.launcher.data.DrawerStyle
+import com.areca.launcher.data.UpdateChecker
 import com.areca.launcher.data.FOLDER_PACKAGE
 import com.areca.launcher.data.FOLDER_PREFIX
 import com.areca.launcher.data.Folder
@@ -34,12 +36,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
 enum class Screen { HOME, APPS, SETTINGS, ABOUT }
+
+/** Estado de la búsqueda de actualizaciones que se muestra en Acerca de. */
+sealed interface UpdateUi {
+    data object Idle : UpdateUi
+    data object Checking : UpdateUi
+    data object UpToDate : UpdateUi
+    data object Failed : UpdateUi
+    data class Available(val version: String, val notes: String, val url: String) : UpdateUi
+}
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -157,6 +169,38 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         yield()
                     }
                 }
+        }
+    }
+
+    private val _updateUi = MutableStateFlow<UpdateUi>(UpdateUi.Idle)
+    val updateUi: StateFlow<UpdateUi> = _updateUi.asStateFlow()
+
+    /** Búsqueda pedida por el usuario; [spanish] elige el idioma de las novedades. */
+    fun checkForUpdates(spanish: Boolean) {
+        if (_updateUi.value == UpdateUi.Checking) return
+        _updateUi.value = UpdateUi.Checking
+        viewModelScope.launch { _updateUi.value = record(UpdateChecker.check(BuildConfig.VERSION_NAME, spanish)) }
+    }
+
+    private suspend fun record(result: UpdateChecker.Result): UpdateUi = when (result) {
+        UpdateChecker.Result.UpToDate -> {
+            settingsRepo.setUpdateResult(System.currentTimeMillis(), "", "")
+            UpdateUi.UpToDate
+        }
+        is UpdateChecker.Result.Available -> {
+            settingsRepo.setUpdateResult(System.currentTimeMillis(), result.version, result.url)
+            UpdateUi.Available(result.version, result.notes, result.url)
+        }
+        UpdateChecker.Result.Failed -> UpdateUi.Failed
+    }
+
+    // Búsqueda semanal opcional: como mucho una vez cada siete días y solo si el usuario la activó.
+    init {
+        viewModelScope.launch {
+            val s = settingsRepo.settings.first()
+            if (s.updateAutoCheck && System.currentTimeMillis() - s.updateLastCheck > UPDATE_INTERVAL_MS) {
+                record(UpdateChecker.check(BuildConfig.VERSION_NAME, spanish = false))
+            }
         }
     }
 
@@ -420,6 +464,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun setDrawerShowLabels(v: Boolean) = update { settingsRepo.setDrawerShowLabels(v) }
     fun setDrawerLetterIndex(v: Boolean) = update { settingsRepo.setDrawerLetterIndex(v) }
     fun setDrawerGroupByLetter(v: Boolean) = update { settingsRepo.setDrawerGroupByLetter(v) }
+    fun setUpdateAutoCheck(v: Boolean) = update { settingsRepo.setUpdateAutoCheck(v) }
     fun setTiltEnabled(v: Boolean) = update { settingsRepo.setTiltEnabled(v) }
     fun setTiltStrength(v: Int) = update { settingsRepo.setTiltStrength(v) }
     fun setThemedIcons(v: Boolean) = update { settingsRepo.setThemedIcons(v) }
@@ -472,6 +517,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         /** Páginas del paginador: 0 escritorio (burbujas y widgets), 1 listado de apps. */
         const val HOME_PAGE = 0
         const val RECENTS_COUNT = 5
+        private const val UPDATE_INTERVAL_MS = 7L * 24 * 60 * 60 * 1000
         const val DEFAULT_FOLDER_NAME = "Carpeta"
         const val MIN_WIDGET_WIDTH_DP = 160
         const val MIN_WIDGET_DP = 80
