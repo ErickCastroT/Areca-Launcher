@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -59,16 +60,19 @@ fun FolderDialog(
         Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
             Column(Modifier.padding(24.dp)) {
                 Text(folder.label, style = MaterialTheme.typography.headlineSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                FlowRow(
-                    Modifier.fillMaxWidth().padding(top = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+                // Tres columnas: cada celda mide un tercio del ancho disponible, descontando la separación.
+                BoxWithConstraints(Modifier.fillMaxWidth().padding(top = 20.dp)) {
+                    val cell = (maxWidth - FOLDER_GAP * (FOLDER_COLUMNS - 1)) / FOLDER_COLUMNS
+                    FlowRow(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(FOLDER_GAP, Alignment.Start),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
                     folder.folderMembers.forEach { app ->
                         var menu by remember(app.key) { mutableStateOf(false) }
                         Box {
                             Column(
-                                Modifier.width(88.dp)
+                                Modifier.width(cell)
                                     .combinedClickable(
                                         onClick = { onClose(); vm.launch(app) },
                                         onLongClick = { menu = true },
@@ -99,6 +103,7 @@ fun FolderDialog(
                                 }
                             }
                         }
+                    }
                     }
                 }
                 Row(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.End) {
@@ -224,3 +229,7 @@ private fun NameDialog(current: String, onSave: (String) -> Unit, onDismiss: () 
 }
 
 private const val MAX_FOLDER_NAME = 24
+
+/** El panel de una carpeta muestra sus apps en tres columnas. */
+private const val FOLDER_COLUMNS = 3
+private val FOLDER_GAP = 8.dp
