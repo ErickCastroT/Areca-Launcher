@@ -284,6 +284,14 @@ fun SettingsScreen(vm: HomeViewModel) {
                         )
                         Text(stringResource(R.string.settings_clock_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
+                    Text(stringResource(R.string.settings_widget_refresh), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(top = 12.dp))
+                    val refreshOptions = listOf(0, 1, 5, 15)
+                    SegmentedChoice(
+                        options = refreshOptions.map { if (it == 0) stringResource(R.string.widget_refresh_off) else stringResource(R.string.widget_refresh_minutes, it) },
+                        selected = refreshOptions.indexOf(s.widgetRefreshMinutes).coerceAtLeast(0),
+                        onSelect = { vm.setWidgetRefreshMinutes(refreshOptions[it]) },
+                    )
+                    Text(stringResource(R.string.settings_widget_refresh_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             SettingsPage.GESTURES -> {

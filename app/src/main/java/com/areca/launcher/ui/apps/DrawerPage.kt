@@ -115,10 +115,10 @@ fun DrawerPage(vm: HomeViewModel, active: Boolean) {
                     settings = settings,
                     vm = vm,
                     showRecents = !compact && recents.isNotEmpty() && query.isBlank(),
+                    recents = recents,
                     showIndex = settings.drawerLetterIndex && query.isBlank(),
                     grouped = settings.drawerGroupByLetter,
                     folders = shownFolders,
-                    recentsContent = { RecentsRow(recents, settings, vm) },
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                 )
             } else if (wide) {
@@ -130,7 +130,7 @@ fun DrawerPage(vm: HomeViewModel, active: Boolean) {
                     if (!compact && recents.isNotEmpty() && query.isBlank()) {
                         item(key = "recents", span = { GridItemSpan(maxLineSpan) }) {
                             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopStart) {
-                                Box(Modifier.widthIn(max = 640.dp)) { RecentsRow(recents, settings, vm) }
+                                Box(Modifier.widthIn(max = 640.dp)) { RecentsRow(recents.take(HomeViewModel.RECENTS_COUNT), settings, vm) }
                             }
                         }
                     }
@@ -143,7 +143,7 @@ fun DrawerPage(vm: HomeViewModel, active: Boolean) {
                     folders = shownFolders,
                     showRecents = recents.isNotEmpty() && query.isBlank(),
                     showIndex = query.isBlank(),
-                    recentsContent = { RecentsRow(recents, settings, vm) },
+                    recentsContent = { RecentsRow(recents.take(HomeViewModel.RECENTS_COUNT), settings, vm) },
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                 ) { app -> AppListItem(app, settings, vm) }
             }
@@ -180,7 +180,7 @@ fun DrawerPage(vm: HomeViewModel, active: Boolean) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    RecentsRow(recents, settings, vm, compact = true, modifier = Modifier.weight(1f))
+                    RecentsRow(recents.take(HomeViewModel.RECENTS_COUNT), settings, vm, compact = true, modifier = Modifier.weight(1f))
                     SearchAndMenu(Modifier.weight(1f))
                 }
             } else {
@@ -352,9 +352,11 @@ private fun LetteredGrid(
     showIndex: Boolean,
     grouped: Boolean,
     folders: List<AppInfo>,
-    recentsContent: @Composable () -> Unit,
+    recents: List<AppInfo>,
     modifier: Modifier = Modifier,
 ) {
+    // Los recientes ocupan una fila de la misma cuadrícula: tantos como columnas, con el mismo tamaño y alineación.
+    val recentCells = remember(recents, settings.drawerColumns) { recents.take(settings.drawerColumns) }
     val gridState = rememberLazyGridState()
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
@@ -363,8 +365,9 @@ private fun LetteredGrid(
     // Posición de la letra en la cuadrícula: con encabezados cada uno ocupa un elemento; sin ellos, la letra
     // apunta a su primera app. Los recientes, si están, ocupan el primero.
     val headerIndex = remember(byLetter, showRecents, grouped, folders.size) {
-        // Las carpetas van fijas arriba y, si hay, un separador que cierra su fila.
-        var i = (if (showRecents) 1 else 0) + folders.size + (if (folders.isNotEmpty()) 1 else 0)
+        // Las carpetas van fijas arriba, seguidas de las apps en el mismo flujo de la cuadrícula.
+        // y los recientes, si están: una fila de celdas más su separador.
+        var i = (if (showRecents) recentCells.size + 1 else 0) + folders.size
         letters.associateWith { letter -> i.also { i += (if (grouped) 1 else 0) + byLetter.getValue(letter).size } }
     }
     val current by remember(headerIndex) {
@@ -378,7 +381,7 @@ private fun LetteredGrid(
     val indexTop by remember(showRecents) {
         derivedStateOf {
             if (!showRecents) 0
-            else gridState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == "recents" }
+            else gridState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == "recents-end" }
                 ?.let { (it.offset.y + it.size.height).coerceAtLeast(0) } ?: 0
         }
     }
@@ -394,9 +397,13 @@ private fun LetteredGrid(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = GRID_SIDE_PADDING_DP.dp, end = GRID_SIDE_PADDING_DP.dp + indexWidth),
         ) {
-            if (showRecents) item(key = "recents", span = { GridItemSpan(maxLineSpan) }) { recentsContent() }
+            if (showRecents) {
+                items(recentCells, key = { "recent:" + it.key }) { app -> AppGridItem(app, settings, vm, shape, iconSize) }
+                item(key = "recents-end", span = { GridItemSpan(maxLineSpan) }) {
+                    HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                }
+            }
             items(folders, key = { it.key }) { folder -> AppGridItem(folder, settings, vm, shape, iconSize) }
-            if (folders.isNotEmpty()) item(key = "folders-end", span = { GridItemSpan(maxLineSpan) }) { Spacer(Modifier.height(8.dp)) }
             letters.forEach { letter ->
                 if (grouped) {
                     item(key = "header-$letter", span = { GridItemSpan(maxLineSpan) }) {

@@ -39,7 +39,7 @@ referencia botánica. Areca Launcher es una identidad propia que conserva, de fo
   configurables, y cinco formas de icono. Opcionalmente las burbujas se deslizan al inclinar el teléfono (acelerómetro, sin permisos).
 - **Favoritas, carpetas y ocultas**: reordenar arrastrando, agrupar en carpetas, ocultar apps.
 - **Iconos**: paquetes de iconos instalados (ADW/Nova, con fondo y máscara del paquete para las apps que no cubre), iconos tematizados monocromos de Android 13, icono distinto por app o desde la galería, y encuadre por app.
-- **Widgets** dentro del escritorio, arriba o debajo de las burbujas; en horizontal van en su propia columna.
+- **Widgets** dentro del escritorio, arriba o debajo de las burbujas; en horizontal van en su propia columna. Areca les pide que se actualicen al volver al escritorio y cada pocos minutos mientras lo ves (ajustable).
 - **Listado de apps** con búsqueda y recientes, en lista o en cuadrícula de iconos (columnas, tamaño del icono, nombres, agrupado por letra y barra de navegación rápida ajustables), con carpetas propias para mantenerlo ordenado.
 - **Gestos** (opcionales): doble toque para bloquear, deslizar hacia abajo para las notificaciones y deslizar desde
   abajo para las apps abiertas. Usan un servicio de accesibilidad que solo ejecuta esas acciones.

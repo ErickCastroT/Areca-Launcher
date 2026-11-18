@@ -13,6 +13,7 @@ import com.areca.launcher.BuildConfig
 import com.areca.launcher.data.DrawerStyle
 import com.areca.launcher.data.UpdateChecker
 import com.areca.launcher.data.FOLDER_PACKAGE
+import com.areca.launcher.data.MAX_DRAWER_COLUMNS
 import com.areca.launcher.data.FOLDER_PREFIX
 import com.areca.launcher.data.Folder
 import java.util.UUID
@@ -466,7 +467,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         if (!s.showRecents) emptyList()
         else {
             val byKey = apps.associateBy { it.key }
-            keys.mapNotNull { byKey[it] }.filter { it.key !in s.hidden }.take(RECENTS_COUNT)
+            keys.mapNotNull { byKey[it] }.filter { it.key !in s.hidden }.take(MAX_DRAWER_COLUMNS)
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -531,6 +532,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun setDrawerLetterIndex(v: Boolean) = update { settingsRepo.setDrawerLetterIndex(v) }
     fun setDrawerGroupByLetter(v: Boolean) = update { settingsRepo.setDrawerGroupByLetter(v) }
     fun setUpdateAutoCheck(v: Boolean) = update { settingsRepo.setUpdateAutoCheck(v) }
+    fun setWidgetRefreshMinutes(v: Int) = update { settingsRepo.setWidgetRefreshMinutes(v) }
+
+    private var lastWidgetRefresh = 0L
+    /** Pide a los widgets del escritorio que se actualicen; no más de una vez cada 20 s. */
+    fun refreshWidgets() {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastWidgetRefresh < MIN_WIDGET_REFRESH_GAP_MS) return
+        lastWidgetRefresh = now
+        widgets.requestUpdate(settings.value.widgetIds)
+    }
     fun setTiltEnabled(v: Boolean) = update { settingsRepo.setTiltEnabled(v) }
     fun setTiltStrength(v: Int) = update { settingsRepo.setTiltStrength(v) }
     fun setThemedIcons(v: Boolean) = update { settingsRepo.setThemedIcons(v) }
@@ -584,6 +595,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         const val HOME_PAGE = 0
         const val RECENTS_COUNT = 5
         private const val UPDATE_INTERVAL_MS = 7L * 24 * 60 * 60 * 1000
+        private const val MIN_WIDGET_REFRESH_GAP_MS = 20_000L
         const val DEFAULT_FOLDER_NAME = "Carpeta"
         const val MIN_WIDGET_WIDTH_DP = 160
         const val MIN_WIDGET_DP = 80

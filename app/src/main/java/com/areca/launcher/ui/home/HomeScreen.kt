@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -90,6 +91,18 @@ private fun HomePage(vm: HomeViewModel, active: Boolean) {
     val density = LocalDensity.current
     val context = LocalContext.current
     val barPx = with(density) { BOTTOM_MARGIN.toPx() }
+    // Los widgets de clima, hora o datos en vivo no se actualizan solos si su proveedor es perezoso: al volver al
+    // escritorio y cada cierto tiempo mientras está a la vista se les pide que se refresquen.
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    LaunchedEffect(active, settings.widgetIds.isNotEmpty(), settings.widgetRefreshMinutes) {
+        if (!active || settings.widgetIds.isEmpty() || settings.widgetRefreshMinutes <= 0) return@LaunchedEffect
+        lifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+            while (true) {
+                vm.refreshWidgets()
+                kotlinx.coroutines.delay(settings.widgetRefreshMinutes * 60_000L)
+            }
+        }
+    }
     val tilt = rememberTilt(
         enabled = settings.tiltEnabled,
         active = active,

@@ -132,6 +132,8 @@ data class LauncherSettings(
     val widgetWidths: Map<Int, Int> = emptyMap(),
     /** Widgets colocados debajo de las burbujas (el resto va arriba). */
     val widgetBottomIds: Set<Int> = emptySet(),
+    /** Cada cuántos minutos se pide a los widgets que se actualicen mientras el escritorio está a la vista; 0 = nunca. */
+    val widgetRefreshMinutes: Int = 5,
     val hideStatusBar: Boolean = false,
     /** Posición vertical del widget de reloj como fracción de la altura (se ajusta a los límites). */
     val clockY: Float = 0.02f,

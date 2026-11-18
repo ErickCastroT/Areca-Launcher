@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
+import android.os.Bundle
 
 /** Aloja widgets de otras apps. Los ids se guardan en los ajustes; el host los mantiene vivos. */
 class WidgetController(context: Context) {
@@ -33,10 +34,21 @@ class WidgetController(context: Context) {
         host.startAppWidgetConfigureActivityForResult(activity, id, 0, requestCode, null)
     }
 
+    /**
+     * Pide a cada widget que se actualice. Android no deja que un launcher mande ACTION_APPWIDGET_UPDATE (es un aviso
+     * protegido del sistema), así que se le cambia una opción al widget: el proveedor recibe
+     * onAppWidgetOptionsChanged y, según cómo esté hecho, redibuja o vuelve a consultar sus datos.
+     */
+    fun requestUpdate(ids: List<Int>) {
+        val stamp = Bundle().apply { putLong(OPTION_REFRESH, System.currentTimeMillis()) }
+        ids.forEach { id -> runCatching { manager.updateAppWidgetOptions(id, stamp) } }
+    }
+
     fun startListening() = host.startListening()
     fun stopListening() = host.stopListening()
 
     private companion object {
         const val HOST_ID = 1024
+        const val OPTION_REFRESH = "areca.refresh"
     }
 }

@@ -38,6 +38,7 @@ class SettingsRepository(private val context: Context) {
         val DRAWER_INDEX = booleanPreferencesKey("drawer_index")
         val DRAWER_GROUPED = booleanPreferencesKey("drawer_grouped")
         val UPDATE_AUTO = booleanPreferencesKey("update_auto")
+        val WIDGET_REFRESH = intPreferencesKey("widget_refresh_minutes")
         val UPDATE_LAST = longPreferencesKey("update_last_check")
         val UPDATE_VERSION = stringPreferencesKey("update_available")
         val UPDATE_URL = stringPreferencesKey("update_url")
@@ -90,6 +91,7 @@ class SettingsRepository(private val context: Context) {
             drawerLetterIndex = p[Keys.DRAWER_INDEX] ?: d.drawerLetterIndex,
             drawerGroupByLetter = p[Keys.DRAWER_GROUPED] ?: d.drawerGroupByLetter,
             updateAutoCheck = p[Keys.UPDATE_AUTO] ?: d.updateAutoCheck,
+            widgetRefreshMinutes = p[Keys.WIDGET_REFRESH] ?: d.widgetRefreshMinutes,
             updateLastCheck = p[Keys.UPDATE_LAST] ?: d.updateLastCheck,
             updateAvailable = p[Keys.UPDATE_VERSION] ?: d.updateAvailable,
             updateUrl = p[Keys.UPDATE_URL] ?: d.updateUrl,
@@ -154,6 +156,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun setDrawerLetterIndex(v: Boolean) = edit { it[Keys.DRAWER_INDEX] = v }
     suspend fun setDrawerGroupByLetter(v: Boolean) = edit { it[Keys.DRAWER_GROUPED] = v }
     suspend fun setUpdateAutoCheck(v: Boolean) = edit { it[Keys.UPDATE_AUTO] = v }
+    suspend fun setWidgetRefreshMinutes(v: Int) = edit { it[Keys.WIDGET_REFRESH] = v }
     /** Guarda el resultado de una búsqueda; [version] vacío = sin novedades. */
     suspend fun setUpdateResult(checkedAt: Long, version: String, url: String) = edit {
         it[Keys.UPDATE_LAST] = checkedAt
@@ -215,6 +218,7 @@ class SettingsRepository(private val context: Context) {
         p[Keys.DRAWER_INDEX] = v.drawerLetterIndex
         p[Keys.DRAWER_GROUPED] = v.drawerGroupByLetter
         p[Keys.UPDATE_AUTO] = v.updateAutoCheck
+        p[Keys.WIDGET_REFRESH] = v.widgetRefreshMinutes
         p[Keys.TILT_ENABLED] = v.tiltEnabled
         p[Keys.TILT_STRENGTH] = v.tiltStrength
         p[Keys.PACK_FALLBACK] = v.packFallback

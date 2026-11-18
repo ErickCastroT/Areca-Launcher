@@ -196,6 +196,10 @@
     <string name="update_auto">Buscar cada semana</string>
     <string name="update_auto_hint">Al abrir la app, como mucho una vez por semana.</string>
     <string name="update_privacy">Solo consulta GitHub y no envía datos de tu teléfono. Areca no instala nada: descargas el APK tú mismo.</string>
+    <string name="settings_widget_refresh">Actualizar widgets</string>
+    <string name="widget_refresh_off">No</string>
+    <string name="widget_refresh_minutes">%1$d min</string>
+    <string name="settings_widget_refresh_hint">Al volver al escritorio y cada cierto tiempo mientras lo ves, Areca pide a los widgets (clima, hora, datos en vivo) que se actualicen. Cada widget decide qué hacer: algunos no hacen caso.</string>
     <string name="settings_show_recents">Mostrar apps recientes</string>
     <string name="settings_show_recents_hint">Al inicio del listado de apps. Solo cuenta lo que abres desde Areca; apagarlo borra el registro.</string>
     <string name="widget_height">Alto</string>
